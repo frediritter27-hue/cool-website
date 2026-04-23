@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frederik</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050508;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --text: #e8e8f0;
+      --muted: #555570;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ---- CANVAS BG ---- */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ---- NAV ---- */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      backdrop-filter: blur(12px);
+      background: rgba(5,5,8,.6);
+      border-bottom: 1px solid rgba(108,99,255,.15);
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .9rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    nav a:hover { color: var(--text); }
+
+    /* ---- HERO ---- */
+    #hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: .35rem 1rem;
+      border: 1px solid rgba(108,99,255,.4);
+      border-radius: 2rem;
+      font-size: .8rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+      animation: fadeUp .6s ease both;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    h1 .grad {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub {
+      margin-top: 1.5rem;
+      max-width: 540px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .cta-row {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn {
+      padding: .85rem 2rem;
+      border-radius: .5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 30px rgba(108,99,255,.4);
+    }
+
+    .btn-primary:hover { box-shadow: 0 12px 40px rgba(108,99,255,.6); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    .btn-ghost:hover { border-color: rgba(255,255,255,.4); }
+
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      color: var(--muted);
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      animation: fadeUp .7s .5s ease both;
+    }
+
+    .scroll-hint span { display: block; width: 1px; height: 40px; background: linear-gradient(to bottom, var(--muted), transparent); }
+
+    /* ---- CARDS SECTION ---- */
+    #work {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 2rem;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: .8rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .8rem;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 4rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 1.2rem;
+      padding: 2rem;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+      cursor: default;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(108,99,255,.4);
+      box-shadow: 0 20px 60px rgba(108,99,255,.15);
+    }
+
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: .6rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    /* ---- STATS ---- */
+    #stats {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+      background: linear-gradient(135deg, rgba(108,99,255,.08), rgba(255,101,132,.06));
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .stats-grid {
+      display: flex;
+      justify-content: center;
+      gap: 5rem;
+      flex-wrap: wrap;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .85rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: .3rem;
+    }
+
+    /* ---- CONTACT ---- */
+    #contact {
+      position: relative;
+      z-index: 1;
+      padding: 8rem 2rem;
+      text-align: center;
+    }
+
+    .contact-box {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-box p {
+      color: var(--muted);
+      margin: 1rem 0 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* ---- FOOTER ---- */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .8rem;
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ---- CURSOR GLOW ---- */
+    .cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,.12) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      transition: left .08s, top .08s;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="cursor-glow" id="glow"></div>
+
+<nav>
+  <div class="logo">FK.</div>
+  <ul>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#stats">Stats</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="tag">Available for projects</div>
+  <h1>Building things<br>that <span class="grad">matter.</span></h1>
+  <p class="sub">Designer & Developer crafting fast, beautiful digital experiences. From idea to launch — no filler, just signal.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="#work">See my work</a>
+    <a class="btn btn-ghost" href="#contact">Say hello</a>
+  </div>
+  <div class="scroll-hint">
+    <span></span>
+    Scroll
+  </div>
+</section>
+
+<section id="work">
+  <p class="section-label reveal">Selected Work</p>
+  <h2 class="section-title reveal">Projects I'm proud of</h2>
+  <div class="cards">
+    <div class="card reveal">
+      <div class="card-icon">🚀</div>
+      <h3>Launch Pad</h3>
+      <p>Full-stack SaaS platform with real-time collaboration, built in 6 weeks from zero to production.</p>
+    </div>
+    <div class="card reveal">
+      <div class="card-icon">🎨</div>
+      <h3>Design System</h3>
+      <p>A token-based component library powering 4 products, cutting UI dev time by 60%.</p>
+    </div>
+    <div class="card reveal">
+      <div class="card-icon">⚡</div>
+      <h3>Edge API</h3>
+      <p>Sub-5ms global response times via distributed edge functions — handles 10M req/day.</p>
+    </div>
+    <div class="card reveal">
+      <div class="card-icon">🤖</div>
+      <h3>AI Assistant</h3>
+      <p>Conversational AI integrated into an existing product suite, boosting retention by 35%.</p>
+    </div>
+    <div class="card reveal">
+      <div class="card-icon">📦</div>
+      <h3>Open Source CLI</h3>
+      <p>A developer tool with 2k GitHub stars that automates the boring parts of deployment pipelines.</p>
+    </div>
+    <div class="card reveal">
+      <div class="card-icon">🌐</div>
+      <h3>Micro-Frontend Hub</h3>
+      <p>Architecture enabling 8 teams to ship independently without stepping on each other.</p>
+    </div>
+  </div>
+</section>
+
+<section id="stats">
+  <div class="stats-grid">
+    <div class="stat reveal">
+      <div class="stat-num" data-target="47">0</div>
+      <div class="stat-label">Projects shipped</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num" data-target="12">0</div>
+      <div class="stat-label">Happy clients</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num" data-target="99">0</div>
+      <div class="stat-label">Lighthouse score</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num" data-target="5">0</div>
+      <div class="stat-label">Years experience</div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact-box">
+    <p class="section-label reveal">Get in touch</p>
+    <h2 class="section-title reveal">Let's build<br>something <span class="grad">together.</span></h2>
+    <p class="reveal">Got a project in mind? I'm always open to interesting challenges. Drop me a line and let's talk.</p>
+    <a class="btn btn-primary reveal" href="mailto:freddo.ritter@gmx.de">Send a message →</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Frederik K. — Built with care, shipped with speed.</p>
+</footer>
+
+<script>
+  // ---- PARTICLE CANVAS ----
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor() { this.reset(true); }
+    reset(init) {
+      this.x = Math.random() * W;
+      this.y = init ? Math.random() * H : H + 10;
+      this.r = Math.random() * 1.5 + 0.3;
+      this.speed = Math.random() * 0.4 + 0.1;
+      this.alpha = Math.random() * 0.5 + 0.1;
+      this.hue = Math.random() > .5 ? 260 : 340;
+    }
+    update() {
+      this.y -= this.speed;
+      if (this.y < -10) this.reset(false);
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue}, 80%, 70%, ${this.alpha})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // ---- CURSOR GLOW ----
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  });
+
+  // ---- SCROLL REVEAL ----
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ---- COUNT-UP ANIMATION ----
+  const numObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      const dur = 1400;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(ease * target);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target + (target === 99 ? '' : '+');
+      }
+      requestAnimationFrame(tick);
+      numObserver.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('[data-target]').forEach(el => numObserver.observe(el));
+</script>
+
+</body>
+</html>

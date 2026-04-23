@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arne Dickel — Pro Mode Für Alle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8cc80;
+      --gold-dark: #8a6e2a;
+      --dark: #0a0c0d;
+      --dark2: #111416;
+      --dark3: #181c1f;
+      --surface: #1e2328;
+      --border: rgba(201,168,76,.18);
+      --text: #f0ece4;
+      --muted: #7a7870;
+      --green: #2d4a2d;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===================== NAV ===================== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 4rem;
+      transition: background .4s, padding .4s;
+    }
+
+    nav.scrolled {
+      background: rgba(10,12,13,.92);
+      backdrop-filter: blur(20px);
+      padding: 1rem 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: .02em;
+      text-decoration: none;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    nav a {
+      color: rgba(240,236,228,.6);
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    nav a:hover { color: var(--gold); }
+
+    .nav-cta {
+      background: var(--gold) !important;
+      color: var(--dark) !important;
+      padding: .6rem 1.4rem;
+      border-radius: 2rem;
+      font-weight: 700 !important;
+      transition: background .2s, transform .15s !important;
+    }
+
+    .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
+
+    /* ===================== HERO ===================== */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 50%, rgba(45,74,45,.4) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 80% at 20% 80%, rgba(201,168,76,.08) 0%, transparent 50%),
+        linear-gradient(160deg, #0a0c0d 0%, #0f1612 50%, #0a0c0d 100%);
+    }
+
+    /* animated golf lines */
+    .hero-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      opacity: .3;
+    }
+
+    .hero-lines::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.3);
+      animation: expand 8s ease-in-out infinite alternate;
+    }
+
+    .hero-lines::after {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: 5%;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.2);
+      animation: expand 8s 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes expand {
+      from { transform: scale(.9); opacity: .3; }
+      to   { transform: scale(1.1); opacity: .6; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 10rem 4rem 8rem;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(201,168,76,.1);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: .45rem 1.2rem;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      animation: fadeUp .7s ease both;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      margin-top: 1.8rem;
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: rgba(240,236,228,.65);
+      max-width: 520px;
+      font-weight: 300;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .hero-actions {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn-gold {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--dark);
+      padding: 1rem 2.2rem;
+      border-radius: .4rem;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      letter-spacing: .02em;
+      box-shadow: 0 8px 40px rgba(201,168,76,.35);
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 50px rgba(201,168,76,.5);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      background: transparent;
+      color: var(--text);
+      padding: 1rem 2.2rem;
+      border-radius: .4rem;
+      font-weight: 500;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid rgba(240,236,228,.2);
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .hero-stats {
+      display: flex;
+      gap: 3.5rem;
+      margin-top: 5rem;
+      animation: fadeUp .7s .45s ease both;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(240,236,228,.08);
+    }
+
+    .hstat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .hstat-label {
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-top: .3rem;
+    }
+
+    .hero-image-side {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 45%;
+      background: linear-gradient(to right, var(--dark) 0%, transparent 30%),
+                  url('https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=900&q=80') center/cover;
+      opacity: .6;
+    }
+
+    /* ===================== SECTION SHARED ===================== */
+    section { position: relative; }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 7rem 4rem;
+    }
+
+    .eyebrow {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .8rem;
+    }
+
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .section-heading em { font-style: italic; color: var(--gold); }
+
+    /* ===================== ABOUT ===================== */
+    #about { background: var(--dark2); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    .about-img-wrap {
+      position: relative;
+    }
+
+    .about-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 1rem;
+      display: block;
+      background: var(--surface) url('https://images.unsplash.com/photo-1591491653943-d370e92b9b8d?w=700&q=80') center/cover;
+    }
+
+    .about-img-badge {
+      position: absolute;
+      bottom: -1.5rem;
+      right: -1.5rem;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 1.2rem 1.8rem;
+      border-radius: .8rem;
+      font-weight: 800;
+      font-size: .9rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+
+    .about-img-badge span {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .about-text p {
+      color: rgba(240,236,228,.65);
+      line-height: 1.85;
+      font-size: 1.05rem;
+      font-weight: 300;
+      margin-top: 1.5rem;
+    }
+
+    .credentials {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+
+    .cred-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .cred-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(201,168,76,.12);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+    }
+
+    .cred-text {
+      font-size: .92rem;
+      color: rgba(240,236,228,.7);
+      line-height: 1.5;
+      padding-top: .4rem;
+    }
+
+    .cred-text strong { color: var(--text); font-weight: 600; }
+
+    /* ===================== PHILOSOPHY ===================== */
+    #philosophy {
+      background: var(--dark);
+    }
+
+    .phil-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .phil-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 1rem;
+      padding: 2.5rem;
+      transition: border-color .25s, transform .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phil-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .phil-card:hover { border-color: var(--border); transform: translateY(-5px); }
+    .phil-card:hover::before { opacity: 1; }
+
+    .phil-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: rgba(201,168,76,.12);
+      line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+
+    .phil-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: .8rem;
+    }
+
+    .phil-card p {
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    /* ===================== TECHNOLOGY ===================== */
+    #technology {
+      background: var(--dark3);
+      border-top: 1px solid rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+
+    .tech-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      margin-bottom: 5rem;
+    }
+
+    .tech-intro p {
+      color: rgba(240,236,228,.6);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      font-weight: 300;
+      margin-top: 1.5rem;
+    }
+
+    .tech-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,.05);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .tech-tool {
+      background: var(--surface);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: background .2s;
+    }
+
+    .tech-tool:hover { background: rgba(201,168,76,.07); }
+
+    .tech-tool-icon { font-size: 2rem; margin-bottom: .8rem; }
+
+    .tech-tool-name {
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--text);
+    }
+
+    .tech-tool-desc {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: .3rem;
+      line-height: 1.5;
+    }
+
+    /* ===================== TESTIMONIALS ===================== */
+    #testimonials { background: var(--dark2); }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .testi-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 1rem;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      transition: transform .25s, border-color .25s;
+    }
+
+    .testi-card:hover { transform: translateY(-4px); border-color: var(--border); }
+
+    .testi-stars { color: var(--gold); font-size: 1rem; letter-spacing: .1em; }
+
+    .testi-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.7;
+      color: rgba(240,236,228,.85);
+      flex: 1;
+    }
+
+    .testi-quote::before { content: '"'; font-size: 3rem; color: var(--gold); line-height: 0; vertical-align: -1rem; margin-right: .1rem; }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+
+    .testi-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .9rem;
+      color: var(--dark);
+      flex-shrink: 0;
+    }
+
+    .testi-name { font-weight: 700; font-size: .92rem; }
+    .testi-meta { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+
+    /* ===================== CTA ===================== */
+    #cta {
+      background: var(--dark);
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(45,74,45,.5) 0%, rgba(201,168,76,.1) 100%);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 6rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at center, rgba(201,168,76,.07) 0%, transparent 60%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .cta-box .section-heading { position: relative; z-index: 1; }
+
+    .cta-box p {
+      color: rgba(240,236,228,.6);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin: 1.5rem auto 3rem;
+      max-width: 500px;
+      position: relative;
+      z-index: 1;
+      font-weight: 300;
+    }
+
+    .cta-box .btn-gold { position: relative; z-index: 1; font-size: 1.05rem; padding: 1.1rem 2.8rem; }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      background: var(--dark2);
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: .8rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-copy {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    /* ===================== ANIMATIONS ===================== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal.delay-1 { transition-delay: .1s; }
+    .reveal.delay-2 { transition-delay: .2s; }
+    .reveal.delay-3 { transition-delay: .3s; }
+    .reveal.delay-4 { transition-delay: .4s; }
+
+    /* ===================== DIVIDER ===================== */
+    .gold-line {
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin: 1.2rem 0 2rem;
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 2rem; }
+      nav ul { gap: 1.5rem; }
+      .hero-content { padding: 8rem 2rem 5rem; }
+      .hero-image-side { display: none; }
+      .section-inner { padding: 5rem 2rem; }
+      .about-grid, .tech-intro { grid-template-columns: 1fr; gap: 3rem; }
+      .phil-grid, .testimonials-grid { grid-template-columns: 1fr; }
+      .tech-tools { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { gap: 2rem; flex-wrap: wrap; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#">AWD</a>
+  <ul>
+    <li><a href="#about">Über Arne</a></li>
+    <li><a href="#philosophy">Methodik</a></li>
+    <li><a href="#technology">Technologie</a></li>
+    <li><a href="#testimonials">Stimmen</a></li>
+    <li><a href="#cta" class="nav-cta">Training buchen</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-image-side"></div>
+  <div class="hero-content">
+    <div class="hero-badge">⛳ Coaching auf Pro-Niveau</div>
+    <h1>Pro Mode<br><em>Für Alle.</em></h1>
+    <p class="hero-sub">
+      Arne Dickel bringt die Methoden der Weltklasse auf dein Spiel —
+      mit TrackMan 4, 3D-Analyse und 17+ Jahren Coaching-Erfahrung.
+      Egal ob Einsteiger oder Handicap-Jäger.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-gold" href="#cta">Training buchen →</a>
+      <a class="btn-outline" href="#about">Mehr erfahren</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hstat-num" data-target="17">0</div>
+        <div class="hstat-label">Jahre Erfahrung</div>
+      </div>
+      <div>
+        <div class="hstat-num" data-target="200">0</div>
+        <div class="hstat-label">Schüler pro Jahr</div>
+      </div>
+      <div>
+        <div class="hstat-num" data-target="6">0</div>
+        <div class="hstat-label">Technologie-Tools</div>
+      </div>
+      <div>
+        <div class="hstat-num" data-target="3">0</div>
+        <div class="hstat-label">Junior Coach of the Year</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-img-wrap reveal">
+        <div class="about-img"></div>
+        <div class="about-img-badge">
+          <span>+3</span>
+          Handicap
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="eyebrow reveal">Über Arne Dickel</p>
+        <h2 class="section-heading reveal">Einmal<br><em>Profi-DNA,</em><br>immer Profi-DNA.</h2>
+        <div class="gold-line reveal"></div>
+        <p class="reveal">Arne Dickel begann mit 6 Jahren am Golfclub Kassel-Wilhelmshöhe. Was folgte, war eine Karriere, die ihn in die Deutsche Nationalmannschaft, zum Junior Ryder Cup (an der Seite von Sergio Garcia) und auf Platz #7 der deutschen Profis führte.</p>
+        <p class="reveal delay-1">Heute gibt er dieses Wissen weiter — an Amateure, Celebrities und Businessleute, die mehr aus ihrem Spiel holen wollen. Kein Einheits-Coaching. Nur das, was für dich funktioniert.</p>
+        <div class="credentials">
+          <div class="cred-item reveal delay-1">
+            <div class="cred-icon">🏆</div>
+            <div class="cred-text"><strong>Mehrfacher Deutscher Meister</strong> — Junior &amp; Amateur</div>
+          </div>
+          <div class="cred-item reveal delay-2">
+            <div class="cred-icon">🎓</div>
+            <div class="cred-text"><strong>PGA Golf Professional</strong> — Ausgebildet bei Hank Haney, Tim Cusick &amp; Robert Baker</div>
+          </div>
+          <div class="cred-item reveal delay-3">
+            <div class="cred-icon">⭐</div>
+            <div class="cred-text"><strong>Junior Coach of the Year</strong> — PGA of Germany &amp; Bayerischer Golfverband</div>
+          </div>
+          <div class="cred-item reveal delay-4">
+            <div class="cred-icon">🌍</div>
+            <div class="cred-text"><strong>10+ Jahre</strong> im PGA of Germany Coaching-Team</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="section-inner">
+    <p class="eyebrow reveal">Meine Methodik</p>
+    <h2 class="section-heading reveal">Kein Schema F.<br><em>Nur dein Swing.</em></h2>
+    <div class="gold-line reveal"></div>
+    <div class="phil-grid">
+      <div class="phil-card reveal">
+        <div class="phil-num">01</div>
+        <h3>Analyse zuerst</h3>
+        <p>Jede Session beginnt mit dem Ergebnis — Ballflug, Auftreffmoment, Bewegungsmuster. Rückwärts denken, vorwärts verbessern.</p>
+      </div>
+      <div class="phil-card reveal delay-1">
+        <div class="phil-num">02</div>
+        <h3>Ganzheitlich</h3>
+        <p>Technik ist nur ein Teil. Mental, taktisch, biomechanisch — Arne arbeitet an allen Dimensionen, die deinen Score beeinflussen.</p>
+      </div>
+      <div class="phil-card reveal delay-2">
+        <div class="phil-num">03</div>
+        <h3>Individuell</h3>
+        <p>Dein Körper, deine Lernweise, deine Ziele. Keine Blaupausen. Jede Einheit wird von Grund auf neu auf dich zugeschnitten.</p>
+      </div>
+      <div class="phil-card reveal delay-3">
+        <div class="phil-num">04</div>
+        <h3>Selbstständigkeit</h3>
+        <p>Das Ziel ist, dass du deinen Swing selbst verstehst — und zwischen den Sessions eigenständig weiterarbeitest.</p>
+      </div>
+      <div class="phil-card reveal delay-4">
+        <div class="phil-num">05</div>
+        <h3>Turnier-Erfahrung</h3>
+        <p>Arne hat selbst auf dem höchsten Level gespielt. Was er lehrt, hat er unter echtem Druck erlebt — kein Theorie-Coaching.</p>
+      </div>
+      <div class="phil-card reveal delay-1">
+        <div class="phil-num">06</div>
+        <h3>Langfristig</h3>
+        <p>Quick Fixes gibt es woanders. Bei Arne bekommst du nachhaltige Veränderungen, die auch in 10 Jahren noch funktionieren.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section id="technology">
+  <div class="section-inner">
+    <div class="tech-intro">
+      <div>
+        <p class="eyebrow reveal">Modernste Technologie</p>
+        <h2 class="section-heading reveal">Daten lügen<br><em>nicht.</em></h2>
+        <div class="gold-line reveal"></div>
+        <p class="reveal">Was früher nur Tour-Pros zur Verfügung stand, nutzt Arne für jeden seiner Schüler. Objektive Messdaten statt Bauchgefühl — so verbessert man sich schneller und nachhaltiger.</p>
+      </div>
+      <div class="tech-tools reveal">
+        <div class="tech-tool">
+          <div class="tech-tool-icon">📡</div>
+          <div class="tech-tool-name">TrackMan 4</div>
+          <div class="tech-tool-desc">Ballflug &amp; Clubdaten in Echtzeit</div>
+        </div>
+        <div class="tech-tool">
+          <div class="tech-tool-icon">🦾</div>
+          <div class="tech-tool-name">HackMotion</div>
+          <div class="tech-tool-desc">Handgelenks-Sensorik</div>
+        </div>
+        <div class="tech-tool">
+          <div class="tech-tool-icon">⚖️</div>
+          <div class="tech-tool-name">Smart2Move</div>
+          <div class="tech-tool-desc">Bodenreaktionskraft-Analyse</div>
+        </div>
+        <div class="tech-tool">
+          <div class="tech-tool-icon">🎯</div>
+          <div class="tech-tool-name">SAM PuttLab</div>
+          <div class="tech-tool-desc">Putten auf Pro-Niveau</div>
+        </div>
+        <div class="tech-tool">
+          <div class="tech-tool-icon">🏋️</div>
+          <div class="tech-tool-name">TPI Screening</div>
+          <div class="tech-tool-desc">Körperliche Fitness-Analyse</div>
+        </div>
+        <div class="tech-tool">
+          <div class="tech-tool-icon">📐</div>
+          <div class="tech-tool-name">K-Motion</div>
+          <div class="tech-tool-desc">3D-Körperbewegung live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-inner">
+    <p class="eyebrow reveal">Das sagen die Spieler</p>
+    <h2 class="section-heading reveal">Echte Ergebnisse.<br><em>Echte Stimmen.</em></h2>
+    <div class="gold-line reveal"></div>
+    <div class="testimonials-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">Systematisches, individuelles Training für alle Altersgruppen. Arne hat mir beigebracht, Fehler selbst zu erkennen und zu korrigieren. Seitdem verbessere ich mich auch ohne ihn weiter.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">WB</div>
+          <div>
+            <div class="testi-name">Wolfgang Baumbach</div>
+            <div class="testi-meta">Handicap 18 → 11 in einer Saison</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal delay-1">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">Drei Tage Intensivkurs — das kompetenteste und verständlichste Training, das wir je erlebt haben. Arne erklärt auf Augenhöhe, ist aufmerksam und hat echte Freude am Coaching.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">LG</div>
+          <div>
+            <div class="testi-name">Lieselotte &amp; Gerd Jungkunz</div>
+            <div class="testi-meta">3-Tage Intensivcamp</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal delay-2">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">Individuelle Aufmerksamkeit, positive Energie und eine Expertise, die gar nicht mal kompliziert klingt — das macht den Unterschied. Man merkt, dass Golf seine echte Leidenschaft ist.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">TD</div>
+          <div>
+            <div class="testi-name">Tim D.</div>
+            <div class="testi-meta">Einzeltraining seit 2 Jahren</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="section-inner">
+    <div class="cta-box">
+      <p class="eyebrow">Bereit für den nächsten Level?</p>
+      <h2 class="section-heading" style="font-size:clamp(2rem,4vw,3rem)">Dein bestes Golf<br><em>wartet auf dich.</em></h2>
+      <p>Egal wo du gerade stehst — Arne bringt dich schneller und mit mehr Spaß ans Ziel. Buche jetzt deine erste Session.</p>
+      <a class="btn-gold" href="https://www.arnedickel.com/buchung" target="_blank">Jetzt Training buchen →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AWD</div>
+  <ul class="footer-links">
+    <li><a href="#about">Über Arne</a></li>
+    <li><a href="#philosophy">Methodik</a></li>
+    <li><a href="#technology">Technologie</a></li>
+    <li><a href="https://www.arnedickel.com" target="_blank">Zur Website</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 Arne Dickel Golf Coaching</p>
+</footer>
+
+<script>
+  // NAV scroll effect
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Count-up
+  const numObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      const dur = 1600;
+      const start = performance.now();
+      const suffix = target === 3 ? 'x' : '+';
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(ease * target);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(tick);
+      numObs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('[data-target]').forEach(el => numObs.observe(el));
+</script>
+
+</body>
+</html>
