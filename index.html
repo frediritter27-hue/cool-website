@@ -3,530 +3,337 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frederik</title>
+  <title>Golf Turnier Live Scoring</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #050508;
-      --accent: #6c63ff;
-      --accent2: #ff6584;
-      --text: #e8e8f0;
-      --muted: #555570;
+      --green: #2d6a4f;
+      --light-green: #40916c;
+      --accent: #ffd166;
+      --bg: #f0f7f4;
+      --card: #ffffff;
+      --text: #1b2d27;
+      --muted: #6b7c78;
+      --red: #e63946;
+      --blue: #4361ee;
+      --shadow: 0 4px 20px rgba(0,0,0,0.10);
     }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* ---- CANVAS BG ---- */
-    #bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* ---- NAV ---- */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 3rem;
-      backdrop-filter: blur(12px);
-      background: rgba(5,5,8,.6);
-      border-bottom: 1px solid rgba(108,99,255,.15);
-    }
-
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 2.5rem;
-    }
-
-    nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: .9rem;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      transition: color .2s;
-    }
-
-    nav a:hover { color: var(--text); }
-
-    /* ---- HERO ---- */
-    #hero {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 6rem 2rem 4rem;
-    }
-
-    .tag {
-      display: inline-block;
-      padding: .35rem 1rem;
-      border: 1px solid rgba(108,99,255,.4);
-      border-radius: 2rem;
-      font-size: .8rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.8rem;
-      animation: fadeUp .6s ease both;
-    }
-
-    h1 {
-      font-size: clamp(3rem, 8vw, 7rem);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      animation: fadeUp .7s .1s ease both;
-    }
-
-    h1 .grad {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .sub {
-      margin-top: 1.5rem;
-      max-width: 540px;
-      color: var(--muted);
-      font-size: 1.1rem;
-      line-height: 1.7;
-      animation: fadeUp .7s .2s ease both;
-    }
-
-    .cta-row {
-      margin-top: 2.5rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeUp .7s .3s ease both;
-    }
-
-    .btn {
-      padding: .85rem 2rem;
-      border-radius: .5rem;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      transition: transform .15s, box-shadow .15s;
-    }
-
-    .btn:hover { transform: translateY(-2px); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      border: none;
-      box-shadow: 0 8px 30px rgba(108,99,255,.4);
-    }
-
-    .btn-primary:hover { box-shadow: 0 12px 40px rgba(108,99,255,.6); }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,.15);
-    }
-
-    .btn-ghost:hover { border-color: rgba(255,255,255,.4); }
-
-    /* scroll indicator */
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .5rem;
-      color: var(--muted);
-      font-size: .75rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      animation: fadeUp .7s .5s ease both;
-    }
-
-    .scroll-hint span { display: block; width: 1px; height: 40px; background: linear-gradient(to bottom, var(--muted), transparent); }
-
-    /* ---- CARDS SECTION ---- */
-    #work {
-      position: relative;
-      z-index: 1;
-      padding: 8rem 2rem;
-    }
-
-    .section-label {
-      text-align: center;
-      font-size: .8rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: .8rem;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 4rem;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 1.2rem;
-      padding: 2rem;
-      transition: transform .25s, border-color .25s, box-shadow .25s;
-      cursor: default;
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(108,99,255,.4);
-      box-shadow: 0 20px 60px rgba(108,99,255,.15);
-    }
-
-    .card-icon {
-      font-size: 2.2rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .card h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: .6rem;
-    }
-
-    .card p {
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: .95rem;
-    }
-
-    /* ---- STATS ---- */
-    #stats {
-      position: relative;
-      z-index: 1;
-      padding: 6rem 2rem;
-      background: linear-gradient(135deg, rgba(108,99,255,.08), rgba(255,101,132,.06));
-      border-top: 1px solid rgba(255,255,255,.05);
-      border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-
-    .stats-grid {
-      display: flex;
-      justify-content: center;
-      gap: 5rem;
-      flex-wrap: wrap;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .stat {
-      text-align: center;
-    }
-
-    .stat-num {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: .85rem;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      margin-top: .3rem;
-    }
-
-    /* ---- CONTACT ---- */
-    #contact {
-      position: relative;
-      z-index: 1;
-      padding: 8rem 2rem;
-      text-align: center;
-    }
-
-    .contact-box {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .contact-box p {
-      color: var(--muted);
-      margin: 1rem 0 2.5rem;
-      line-height: 1.7;
-    }
-
-    /* ---- FOOTER ---- */
-    footer {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 2rem;
-      color: var(--muted);
-      font-size: .8rem;
-      border-top: 1px solid rgba(255,255,255,.05);
-    }
-
-    /* ---- ANIMATIONS ---- */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity .6s ease, transform .6s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    /* ---- CURSOR GLOW ---- */
-    .cursor-glow {
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(108,99,255,.12) 0%, transparent 70%);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 0;
-      transition: left .08s, top .08s;
-    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+    header { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2); flex-wrap: wrap; gap: 1rem; }
+    header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .header-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .live-badge { background: var(--red); color: white; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 0.4rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    .live-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
+    .last-update { font-size: 0.8rem; opacity: 0.8; }
+    nav { background: var(--green); display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid var(--light-green); }
+    nav button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 0.9rem 1.5rem; cursor: pointer; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s; border-bottom: 3px solid transparent; }
+    nav button.active, nav button:hover { color: white; background: rgba(255,255,255,0.1); border-bottom-color: var(--accent); }
+    main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h2 { color: var(--green); margin-bottom: 1rem; font-size: 1.3rem; }
+    .leaderboard-table { width: 100%; border-collapse: collapse; }
+    .leaderboard-table th { background: var(--green); color: white; padding: 0.8rem 1rem; text-align: left; font-size: 0.9rem; }
+    .leaderboard-table th:nth-child(1) { border-radius: 8px 0 0 0; }
+    .leaderboard-table th:last-child { border-radius: 0 8px 0 0; }
+    .leaderboard-table td { padding: 0.8rem 1rem; border-bottom: 1px solid #e8f0ec; font-size: 0.95rem; }
+    .leaderboard-table tr:hover td { background: #f0f7f4; }
+    .rank { font-weight: bold; font-size: 1.1rem; color: var(--muted); }
+    .rank.gold { color: #ffd700; }
+    .rank.silver { color: #c0c0c0; }
+    .rank.bronze { color: #cd7f32; }
+    .score-under { color: var(--red); font-weight: bold; }
+    .score-over { color: var(--blue); }
+    .score-even { color: var(--green); font-weight: bold; }
+    .player-name { font-weight: 600; }
+    .hole-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .hole-card { background: var(--bg); border-radius: 10px; padding: 1rem; text-align: center; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
+    .hole-card:hover { border-color: var(--light-green); transform: translateY(-2px); }
+    .hole-card h3 { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .btn { background: var(--green); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+    .btn:hover { background: var(--light-green); }
+    .btn-danger { background: var(--red); }
+    .btn-danger:hover { background: #c1121f; }
+    .btn-accent { background: var(--accent); color: var(--text); }
+    .btn-accent:hover { background: #ffbe00; }
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: flex-end; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 150px; }
+    .form-group label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+    .form-group input, .form-group select { border: 2px solid #d0e8dc; border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 0.95rem; color: var(--text); background: white; outline: none; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--light-green); }
+    .score-input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.7rem; margin: 1rem 0; }
+    .score-cell { text-align: center; }
+    .score-cell label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .score-cell input { width: 100%; text-align: center; border: 2px solid #d0e8dc; border-radius: 8px; padding: 0.5rem; font-size: 1rem; font-weight: bold; outline: none; }
+    .score-cell input:focus { border-color: var(--light-green); }
+    .score-cell input.eagle { background: #ffd700; }
+    .score-cell input.birdie { background: #90e0ef; }
+    .score-cell input.bogey { background: #ffb4a2; }
+    .score-cell input.double-bogey { background: #e63946; color: white; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .stat-card { background: var(--bg); border-radius: 10px; padding: 1.2rem; text-align: center; }
+    .stat-card .stat-value { font-size: 2rem; font-weight: bold; color: var(--green); }
+    .stat-card .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
+    .alert { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; display: none; }
+    .alert.show { display: block; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .badge { background: var(--light-green); color: white; border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.8rem; }
+    .players-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .player-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 10px; padding: 0.8rem 1rem; gap: 1rem; flex-wrap: wrap; }
+    .player-info { display: flex; flex-direction: column; gap: 0.2rem; }
+    .player-info .name { font-weight: 600; }
+    .player-info .handicap { font-size: 0.8rem; color: var(--muted); }
+    .score-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .score-pill { background: var(--green); color: white; border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.85rem; font-weight: bold; }
+    .score-pill.red { background: var(--red); }
+    .score-pill.blue { background: var(--blue); }
+    @media (max-width: 600px) { header h1 { font-size: 1.3rem; } main { padding: 1rem; } .leaderboard-table th, .leaderboard-table td { padding: 0.6rem 0.5rem; font-size: 0.85rem; } }
+    .progress-bar-wrap { background: #d0e8dc; border-radius: 20px; height: 8px; margin-top: 0.5rem; }
+    .progress-bar { background: var(--light-green); height: 8px; border-radius: 20px; transition: width 0.5s; }
+    .empty-state { text-align: center; color: var(--muted); padding: 3rem 1rem; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-
-<canvas id="bg-canvas"></canvas>
-<div class="cursor-glow" id="glow"></div>
-
+<header>
+  <h1>&#9971; Golf Turnier Live Scoring</h1>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="last-update" id="lastUpdate">Wird geladen...</div>
+  </div>
+</header>
 <nav>
-  <div class="logo">FK.</div>
-  <ul>
-    <li><a href="#work">Work</a></li>
-    <li><a href="#stats">Stats</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
+  <button class="active" onclick="showPage('leaderboard', this)">&#127942; Rangliste</button>
+  <button onclick="showPage('scoring', this)">&#9997; Scores eingeben</button>
+  <button onclick="showPage('players', this)">&#128100; Spieler</button>
+  <button onclick="showPage('course', this)">&#127966; Platz</button>
+  <button onclick="showPage('stats', this)">&#128202; Statistik</button>
 </nav>
-
-<section id="hero">
-  <div class="tag">Available for projects</div>
-  <h1>Building things<br>that <span class="grad">matter.</span></h1>
-  <p class="sub">Designer & Developer crafting fast, beautiful digital experiences. From idea to launch — no filler, just signal.</p>
-  <div class="cta-row">
-    <a class="btn btn-primary" href="#work">See my work</a>
-    <a class="btn btn-ghost" href="#contact">Say hello</a>
-  </div>
-  <div class="scroll-hint">
-    <span></span>
-    Scroll
-  </div>
-</section>
-
-<section id="work">
-  <p class="section-label reveal">Selected Work</p>
-  <h2 class="section-title reveal">Projects I'm proud of</h2>
-  <div class="cards">
-    <div class="card reveal">
-      <div class="card-icon">🚀</div>
-      <h3>Launch Pad</h3>
-      <p>Full-stack SaaS platform with real-time collaboration, built in 6 weeks from zero to production.</p>
-    </div>
-    <div class="card reveal">
-      <div class="card-icon">🎨</div>
-      <h3>Design System</h3>
-      <p>A token-based component library powering 4 products, cutting UI dev time by 60%.</p>
-    </div>
-    <div class="card reveal">
-      <div class="card-icon">⚡</div>
-      <h3>Edge API</h3>
-      <p>Sub-5ms global response times via distributed edge functions — handles 10M req/day.</p>
-    </div>
-    <div class="card reveal">
-      <div class="card-icon">🤖</div>
-      <h3>AI Assistant</h3>
-      <p>Conversational AI integrated into an existing product suite, boosting retention by 35%.</p>
-    </div>
-    <div class="card reveal">
-      <div class="card-icon">📦</div>
-      <h3>Open Source CLI</h3>
-      <p>A developer tool with 2k GitHub stars that automates the boring parts of deployment pipelines.</p>
-    </div>
-    <div class="card reveal">
-      <div class="card-icon">🌐</div>
-      <h3>Micro-Frontend Hub</h3>
-      <p>Architecture enabling 8 teams to ship independently without stepping on each other.</p>
+<main>
+  <div id="page-leaderboard" class="page active">
+    <div class="card">
+      <div class="section-header">
+        <h2>&#127942; Live Rangliste</h2>
+        <span class="badge" id="roundBadge">Runde 1</span>
+      </div>
+      <div id="leaderboardContent">
+        <div class="empty-state"><div class="icon">&#9971;</div><p>Noch keine Scores. Spieler und Scores hinzuf&#252;gen!</p></div>
+      </div>
     </div>
   </div>
-</section>
-
-<section id="stats">
-  <div class="stats-grid">
-    <div class="stat reveal">
-      <div class="stat-num" data-target="47">0</div>
-      <div class="stat-label">Projects shipped</div>
-    </div>
-    <div class="stat reveal">
-      <div class="stat-num" data-target="12">0</div>
-      <div class="stat-label">Happy clients</div>
-    </div>
-    <div class="stat reveal">
-      <div class="stat-num" data-target="99">0</div>
-      <div class="stat-label">Lighthouse score</div>
-    </div>
-    <div class="stat reveal">
-      <div class="stat-num" data-target="5">0</div>
-      <div class="stat-label">Years experience</div>
+  <div id="page-scoring" class="page">
+    <div class="card">
+      <h2>&#9997; Score eingeben</h2>
+      <div id="scoreAlert" class="alert">Score gespeichert!</div>
+      <div class="form-row">
+        <div class="form-group"><label>Spieler</label><select id="scorePlayer"><option value="">-- Spieler w&#228;hlen --</option></select></div>
+        <div class="form-group"><label>Runde</label><select id="scoreRound"><option value="1">Runde 1</option><option value="2">Runde 2</option><option value="3">Runde 3</option><option value="4">Runde 4</option></select></div>
+      </div>
+      <h3 style="color:var(--green);margin-bottom:0.5rem;">Loch-f&#252;r-Loch Scores (1-18)</h3>
+      <div class="score-input-grid" id="holeInputs"></div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
+        <button class="btn" onclick="saveScore()">Speichern</button>
+        <button class="btn btn-accent" onclick="clearScoreForm()">Zur&#252;cksetzen</button>
+      </div>
     </div>
   </div>
-</section>
-
-<section id="contact">
-  <div class="contact-box">
-    <p class="section-label reveal">Get in touch</p>
-    <h2 class="section-title reveal">Let's build<br>something <span class="grad">together.</span></h2>
-    <p class="reveal">Got a project in mind? I'm always open to interesting challenges. Drop me a line and let's talk.</p>
-    <a class="btn btn-primary reveal" href="mailto:freddo.ritter@gmx.de">Send a message →</a>
+  <div id="page-players" class="page">
+    <div class="card">
+      <h2>&#128100; Spieler hinzuf&#252;gen</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Name</label><input type="text" id="playerName" placeholder="Max Mustermann" /></div>
+        <div class="form-group"><label>Handicap</label><input type="number" id="playerHandicap" placeholder="0" min="-10" max="54" step="0.1" /></div>
+        <div class="form-group"><label>Klub</label><input type="text" id="playerClub" placeholder="z.B. GC M&#252;nchen" /></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn" onclick="addPlayer()">Hinzuf&#252;gen</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-header"><h2>&#128101; Teilnehmerliste</h2><span class="badge" id="playerCount">0 Spieler</span></div>
+      <div class="players-list" id="playersList"><div class="empty-state"><div class="icon">&#128100;</div><p>Noch keine Spieler.</p></div></div>
+    </div>
   </div>
-</section>
-
-<footer>
-  <p>© 2026 Frederik K. — Built with care, shipped with speed.</p>
-</footer>
-
+  <div id="page-course" class="page">
+    <div class="card">
+      <h2>&#127966; Platz-Info</h2>
+      <div class="form-row">
+        <div class="form-group"><label>Turnier Name</label><input type="text" id="tournamentName" placeholder="Mein Golf Turnier" /></div>
+        <div class="form-group"><label>Platz Name</label><input type="text" id="courseName" placeholder="GC Beispiel" /></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn" onclick="saveCourse()">Speichern</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>&#9968; Loch-Setup (Par)</h2>
+      <div class="hole-grid" id="holeSetup"></div>
+      <div style="margin-top:1rem;">
+        <button class="btn" onclick="saveHoles()">Par speichern</button>
+        <span style="margin-left:1rem;color:var(--muted);font-size:0.9rem;">Gesamt Par: <strong id="totalPar">72</strong></span>
+      </div>
+    </div>
+  </div>
+  <div id="page-stats" class="page">
+    <div class="card"><h2>&#128202; Turnier Statistik</h2><div class="stats-grid" id="statsGrid"></div></div>
+    <div class="card">
+      <h2>&#128293; Daten l&#246;schen</h2>
+      <p style="color:var(--muted);margin-bottom:1rem;">Achtung: Alle Daten werden unwiderruflich gel&#246;scht.</p>
+      <button class="btn btn-danger" onclick="resetAll()">Alle Daten l&#246;schen</button>
+    </div>
+  </div>
+</main>
 <script>
-  // ---- PARTICLE CANVAS ----
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+  let state = JSON.parse(localStorage.getItem('golfScoring') || 'null') || {
+    tournament: 'Golf Turnier', course: 'Golfplatz', players: [], scores: {},
+    holes: Array.from({length:18}, (_,i) => ({ number: i+1, par: [4,4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4][i], yardage: 400 })),
+    currentRound: 1
+  };
+  function save() { localStorage.setItem('golfScoring', JSON.stringify(state)); updateLastUpdate(); }
+  function updateLastUpdate() { document.getElementById('lastUpdate').textContent = 'Stand: ' + new Date().toLocaleTimeString('de-DE'); }
+  function showPage(name, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'leaderboard') renderLeaderboard();
+    if (name === 'players') renderPlayers();
+    if (name === 'scoring') renderScoringPage();
+    if (name === 'course') renderCoursePage();
+    if (name === 'stats') renderStats();
   }
-  resize();
-  window.addEventListener('resize', resize);
-
-  class Particle {
-    constructor() { this.reset(true); }
-    reset(init) {
-      this.x = Math.random() * W;
-      this.y = init ? Math.random() * H : H + 10;
-      this.r = Math.random() * 1.5 + 0.3;
-      this.speed = Math.random() * 0.4 + 0.1;
-      this.alpha = Math.random() * 0.5 + 0.1;
-      this.hue = Math.random() > .5 ? 260 : 340;
-    }
-    update() {
-      this.y -= this.speed;
-      if (this.y < -10) this.reset(false);
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${this.hue}, 80%, 70%, ${this.alpha})`;
-      ctx.fill();
+  function addPlayer() {
+    const name = document.getElementById('playerName').value.trim();
+    const hcp = parseFloat(document.getElementById('playerHandicap').value) || 0;
+    const club = document.getElementById('playerClub').value.trim();
+    if (!name) { alert('Bitte Namen eingeben!'); return; }
+    if (state.players.find(p => p.name === name)) { alert('Spieler bereits vorhanden!'); return; }
+    state.players.push({ id: Date.now(), name, handicap: hcp, club });
+    save(); renderPlayers(); renderScoringPage();
+    document.getElementById('playerName').value = '';
+    document.getElementById('playerHandicap').value = '';
+    document.getElementById('playerClub').value = '';
+  }
+  function removePlayer(id) {
+    if (!confirm('Spieler entfernen?')) return;
+    state.players = state.players.filter(p => p.id !== id);
+    delete state.scores[id];
+    save(); renderPlayers(); renderScoringPage();
+  }
+  function renderPlayers() {
+    const list = document.getElementById('playersList');
+    document.getElementById('playerCount').textContent = state.players.length + ' Spieler';
+    if (!state.players.length) { list.innerHTML = '<div class="empty-state"><div class="icon">&#128100;</div><p>Noch keine Spieler.</p></div>'; return; }
+    list.innerHTML = state.players.map(p => {
+      const total = getPlayerTotal(p.id, state.currentRound);
+      const diff = total - getTotalPar();
+      const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+' + diff : diff);
+      const pillClass = diff < 0 ? 'red' : diff > 0 ? 'blue' : '';
+      return '<div class="player-item"><div class="player-info"><div class="name">' + p.name + '</div><div class="handicap">HCP: ' + p.handicap + ' | ' + (p.club || 'Kein Klub') + '</div></div><div class="score-row"><span class="score-pill ' + pillClass + '">' + (total > 0 ? total + ' (' + diffStr + ')' : 'Kein Score') + '</span><button class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.8rem;" onclick="removePlayer(' + p.id + ')">Entfernen</button></div></div>';
+    }).join('');
+  }
+  function renderScoringPage() {
+    const sel = document.getElementById('scorePlayer');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">-- Spieler waehlen --</option>' + state.players.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+    if (cur) sel.value = cur;
+    renderHoleInputs();
+  }
+  function renderHoleInputs() {
+    const c = document.getElementById('holeInputs');
+    c.innerHTML = state.holes.map(h => '<div class="score-cell"><label>Loch ' + h.number + ' (P' + h.par + ')</label><input type="number" id="hole_' + h.number + '" min="1" max="15" oninput="colorHole(' + h.number + ',' + h.par + ')" /></div>').join('');
+    const pid = document.getElementById('scorePlayer').value;
+    const rnd = document.getElementById('scoreRound').value;
+    if (pid && state.scores[pid] && state.scores[pid][rnd]) {
+      state.scores[pid][rnd].forEach((s, i) => { const inp = document.getElementById('hole_' + (i+1)); if (inp) { inp.value = s; colorHole(i+1, state.holes[i].par); } });
     }
   }
-
-  for (let i = 0; i < 120; i++) particles.push(new Particle());
-
-  function animate() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animate);
+  function colorHole(n, par) {
+    const inp = document.getElementById('hole_' + n);
+    if (!inp || !inp.value) return;
+    const v = parseInt(inp.value);
+    inp.className = '';
+    if (v <= par-2) inp.classList.add('eagle');
+    else if (v === par-1) inp.classList.add('birdie');
+    else if (v === par+1) inp.classList.add('bogey');
+    else if (v >= par+2) inp.classList.add('double-bogey');
   }
-  animate();
-
-  // ---- CURSOR GLOW ----
-  const glow = document.getElementById('glow');
-  document.addEventListener('mousemove', e => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top  = e.clientY + 'px';
-  });
-
-  // ---- SCROLL REVEAL ----
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('visible'), i * 80);
-        observer.unobserve(e.target);
-      }
+  function saveScore() {
+    const pid = document.getElementById('scorePlayer').value;
+    const rnd = document.getElementById('scoreRound').value;
+    if (!pid) { alert('Bitte Spieler waehlen!'); return; }
+    const scores = [];
+    for (let i = 1; i <= 18; i++) { const inp = document.getElementById('hole_' + i); scores.push(inp && inp.value ? parseInt(inp.value) : 0); }
+    if (!state.scores[pid]) state.scores[pid] = {};
+    state.scores[pid][rnd] = scores;
+    save();
+    const al = document.getElementById('scoreAlert');
+    al.classList.add('show');
+    setTimeout(() => al.classList.remove('show'), 3000);
+    renderLeaderboard();
+  }
+  function clearScoreForm() { document.getElementById('scorePlayer').value = ''; renderHoleInputs(); }
+  function getPlayerTotal(pid, rnd) {
+    if (!state.scores[pid] || !state.scores[pid][rnd]) return 0;
+    return state.scores[pid][rnd].reduce((a, b) => a + b, 0);
+  }
+  function getTotalPar() { return state.holes.reduce((a, h) => a + h.par, 0); }
+  function renderLeaderboard() {
+    const container = document.getElementById('leaderboardContent');
+    document.getElementById('roundBadge').textContent = 'Runde ' + state.currentRound;
+    const totalPar = getTotalPar();
+    const withScores = state.players.map(p => {
+      const total = getPlayerTotal(p.id, state.currentRound);
+      const hp = state.scores[p.id] && state.scores[p.id][state.currentRound] ? state.scores[p.id][state.currentRound].filter(s => s > 0).length : 0;
+      return { ...p, total, holesPlayed: hp, diff: total - totalPar };
+    }).filter(p => p.holesPlayed > 0).sort((a, b) => a.total - b.total);
+    if (!withScores.length) { container.innerHTML = '<div class="empty-state"><div class="icon">&#9971;</div><p>Noch keine Scores.</p></div>'; return; }
+    const trophies = ['&#129351;', '&#129352;', '&#129353;'];
+    const rankClasses = ['gold', 'silver', 'bronze'];
+    container.innerHTML = '<table class="leaderboard-table"><thead><tr><th>Platz</th><th>Spieler</th><th>Score</th><th>+/-</th><th>Loecher</th><th>HCP</th></tr></thead><tbody>' +
+      withScores.map((p, i) => {
+        const diffStr = p.diff === 0 ? 'E' : (p.diff > 0 ? '+' + p.diff : '' + p.diff);
+        const diffClass = p.diff < 0 ? 'score-under' : p.diff > 0 ? 'score-over' : 'score-even';
+        const rankIcon = i < 3 ? trophies[i] : (i+1) + '.';
+        const rankClass = i < 3 ? rankClasses[i] : '';
+        return '<tr><td><span class="rank ' + rankClass + '">' + rankIcon + '</span></td><td><span class="player-name">' + p.name + '</span><br><small style="color:var(--muted)">' + (p.club || '') + '</small></td><td>' + p.total + '</td><td><span class="' + diffClass + '">' + diffStr + '</span></td><td>' + p.holesPlayed + '/18<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + (p.holesPlayed/18*100).toFixed(0) + '%"></div></div></td><td>' + p.handicap + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function renderCoursePage() {
+    document.getElementById('tournamentName').value = state.tournament || '';
+    document.getElementById('courseName').value = state.course || '';
+    document.getElementById('holeSetup').innerHTML = state.holes.map(h =>
+      '<div class="hole-card"><h3>Loch ' + h.number + '</h3><div>Par <input type="number" id="par_' + h.number + '" value="' + h.par + '" min="3" max="5" style="width:50px;border:1px solid #ccc;border-radius:5px;text-align:center;" oninput="updateTotalPar()" /></div><div><input type="number" id="yard_' + h.number + '" value="' + (h.yardage||400) + '" min="50" max="600" style="width:65px;border:1px solid #ccc;border-radius:5px;text-align:center;" /> Yards</div></div>'
+    ).join('');
+    updateTotalPar();
+  }
+  function updateTotalPar() { let t = 0; for (let i=1;i<=18;i++){const inp=document.getElementById('par_'+i);if(inp)t+=parseInt(inp.value)||0;} document.getElementById('totalPar').textContent=t; }
+  function saveCourse() { state.tournament=document.getElementById('tournamentName').value.trim()||'Golf Turnier'; state.course=document.getElementById('courseName').value.trim()||'Golfplatz'; save(); alert('Gespeichert!'); }
+  function saveHoles() { for(let i=0;i<18;i++){const pi=document.getElementById('par_'+(i+1));const yi=document.getElementById('yard_'+(i+1));if(pi)state.holes[i].par=parseInt(pi.value)||4;if(yi)state.holes[i].yardage=parseInt(yi.value)||400;} save(); alert('Platz gespeichert!'); }
+  function renderStats() {
+    const totalPar = getTotalPar();
+    let eagles=0,birdies=0,bogeys=0; let best=null;
+    state.players.forEach(p => {
+      const sc = state.scores[p.id] && state.scores[p.id][state.currentRound];
+      if (!sc) return;
+      sc.forEach((s,i) => { if(s<=0)return; const par=state.holes[i].par; if(s<=par-2)eagles++; else if(s===par-1)birdies++; else if(s>=par+1)bogeys++; });
+      const total = getPlayerTotal(p.id, state.currentRound);
+      if (total > 0 && (!best || total < best.total)) best = { name: p.name, total };
     });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // ---- COUNT-UP ANIMATION ----
-  const numObserver = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const el = e.target;
-      const target = +el.dataset.target;
-      const dur = 1400;
-      const start = performance.now();
-      function tick(now) {
-        const p = Math.min((now - start) / dur, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.round(ease * target);
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = target + (target === 99 ? '' : '+');
-      }
-      requestAnimationFrame(tick);
-      numObserver.unobserve(el);
-    });
-  }, { threshold: 0.5 });
-
-  document.querySelectorAll('[data-target]').forEach(el => numObserver.observe(el));
+    const stats = [
+      {label:'Spieler',value:state.players.length,icon:'&#128100;'},
+      {label:'Total Par',value:totalPar,icon:'&#9968;'},
+      {label:'Eagles',value:eagles,icon:'&#129413;'},
+      {label:'Birdies',value:birdies,icon:'&#128038;'},
+      {label:'Bogeys',value:bogeys,icon:'&#128549;'},
+      {label:'Fuehrender',value:best?best.name:'-',icon:'&#129351;'}
+    ];
+    document.getElementById('statsGrid').innerHTML = stats.map(s => '<div class="stat-card"><div class="stat-value">' + s.icon + '</div><div class="stat-value" style="font-size:1.5rem;">' + s.value + '</div><div class="stat-label">' + s.label + '</div></div>').join('');
+  }
+  function resetAll() { if(!confirm('Alle Daten loeschen?'))return; localStorage.removeItem('golfScoring'); location.reload(); }
+  renderLeaderboard(); renderScoringPage(); updateLastUpdate();
+  setInterval(updateLastUpdate, 60000);
+  document.getElementById('scorePlayer').addEventListener('change', renderHoleInputs);
+  document.getElementById('scoreRound').addEventListener('change', renderHoleInputs);
 </script>
-
 </body>
 </html>
