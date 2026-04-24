@@ -1,339 +1,469 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Golf Turnier Live Scoring</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green: #2d6a4f;
-      --light-green: #40916c;
-      --accent: #ffd166;
-      --bg: #f0f7f4;
-      --card: #ffffff;
-      --text: #1b2d27;
-      --muted: #6b7c78;
-      --red: #e63946;
-      --blue: #4361ee;
-      --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#2d6a4f;--light-green:#40916c;--accent:#ffd166;
+      --bg:#f0f7f4;--card:#fff;--text:#1b2d27;--muted:#6b7c78;
+      --red:#e63946;--blue:#4361ee;--shadow:0 4px 20px rgba(0,0,0,.10)
     }
-    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
-    header { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.2); flex-wrap: wrap; gap: 1rem; }
-    header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem; }
-    .header-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-    .live-badge { background: var(--red); color: white; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; gap: 0.4rem; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-    .live-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
-    .last-update { font-size: 0.8rem; opacity: 0.8; }
-    nav { background: var(--green); display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid var(--light-green); }
-    nav button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 0.9rem 1.5rem; cursor: pointer; font-size: 0.95rem; white-space: nowrap; transition: all 0.2s; border-bottom: 3px solid transparent; }
-    nav button.active, nav button:hover { color: white; background: rgba(255,255,255,0.1); border-bottom-color: var(--accent); }
-    main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-    .page { display: none; }
-    .page.active { display: block; }
-    .card { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
-    .card h2 { color: var(--green); margin-bottom: 1rem; font-size: 1.3rem; }
-    .leaderboard-table { width: 100%; border-collapse: collapse; }
-    .leaderboard-table th { background: var(--green); color: white; padding: 0.8rem 1rem; text-align: left; font-size: 0.9rem; }
-    .leaderboard-table th:nth-child(1) { border-radius: 8px 0 0 0; }
-    .leaderboard-table th:last-child { border-radius: 0 8px 0 0; }
-    .leaderboard-table td { padding: 0.8rem 1rem; border-bottom: 1px solid #e8f0ec; font-size: 0.95rem; }
-    .leaderboard-table tr:hover td { background: #f0f7f4; }
-    .rank { font-weight: bold; font-size: 1.1rem; color: var(--muted); }
-    .rank.gold { color: #ffd700; }
-    .rank.silver { color: #c0c0c0; }
-    .rank.bronze { color: #cd7f32; }
-    .score-under { color: var(--red); font-weight: bold; }
-    .score-over { color: var(--blue); }
-    .score-even { color: var(--green); font-weight: bold; }
-    .player-name { font-weight: 600; }
-    .hole-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .hole-card { background: var(--bg); border-radius: 10px; padding: 1rem; text-align: center; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
-    .hole-card:hover { border-color: var(--light-green); transform: translateY(-2px); }
-    .hole-card h3 { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.3rem; }
-    .btn { background: var(--green); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
-    .btn:hover { background: var(--light-green); }
-    .btn-danger { background: var(--red); }
-    .btn-danger:hover { background: #c1121f; }
-    .btn-accent { background: var(--accent); color: var(--text); }
-    .btn-accent:hover { background: #ffbe00; }
-    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: flex-end; }
-    .form-group { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; min-width: 150px; }
-    .form-group label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
-    .form-group input, .form-group select { border: 2px solid #d0e8dc; border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 0.95rem; color: var(--text); background: white; outline: none; transition: border-color 0.2s; }
-    .form-group input:focus, .form-group select:focus { border-color: var(--light-green); }
-    .score-input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.7rem; margin: 1rem 0; }
-    .score-cell { text-align: center; }
-    .score-cell label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.3rem; }
-    .score-cell input { width: 100%; text-align: center; border: 2px solid #d0e8dc; border-radius: 8px; padding: 0.5rem; font-size: 1rem; font-weight: bold; outline: none; }
-    .score-cell input:focus { border-color: var(--light-green); }
-    .score-cell input.eagle { background: #ffd700; }
-    .score-cell input.birdie { background: #90e0ef; }
-    .score-cell input.bogey { background: #ffb4a2; }
-    .score-cell input.double-bogey { background: #e63946; color: white; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .stat-card { background: var(--bg); border-radius: 10px; padding: 1.2rem; text-align: center; }
-    .stat-card .stat-value { font-size: 2rem; font-weight: bold; color: var(--green); }
-    .stat-card .stat-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem; }
-    .alert { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; display: none; }
-    .alert.show { display: block; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
-    .badge { background: var(--light-green); color: white; border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.8rem; }
-    .players-list { display: flex; flex-direction: column; gap: 0.7rem; }
-    .player-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 10px; padding: 0.8rem 1rem; gap: 1rem; flex-wrap: wrap; }
-    .player-info { display: flex; flex-direction: column; gap: 0.2rem; }
-    .player-info .name { font-weight: 600; }
-    .player-info .handicap { font-size: 0.8rem; color: var(--muted); }
-    .score-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .score-pill { background: var(--green); color: white; border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.85rem; font-weight: bold; }
-    .score-pill.red { background: var(--red); }
-    .score-pill.blue { background: var(--blue); }
-    @media (max-width: 600px) { header h1 { font-size: 1.3rem; } main { padding: 1rem; } .leaderboard-table th, .leaderboard-table td { padding: 0.6rem 0.5rem; font-size: 0.85rem; } }
-    .progress-bar-wrap { background: #d0e8dc; border-radius: 20px; height: 8px; margin-top: 0.5rem; }
-    .progress-bar { background: var(--light-green); height: 8px; border-radius: 20px; transition: width 0.5s; }
-    .empty-state { text-align: center; color: var(--muted); padding: 3rem 1rem; }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+    header{background:linear-gradient(135deg,var(--green),var(--light-green));color:#fff;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+    header h1{font-size:1.6rem}
+    .live-badge{background:var(--red);color:#fff;padding:.2rem .7rem;border-radius:20px;font-size:.8rem;font-weight:bold;display:flex;align-items:center;gap:.4rem;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .live-dot{width:8px;height:8px;background:#fff;border-radius:50%}
+    .user-bar{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+    .user-name{font-size:.9rem;opacity:.9}
+    nav{background:var(--green);display:flex;overflow-x:auto;border-bottom:2px solid var(--light-green)}
+    nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:.8rem 1.3rem;cursor:pointer;font-size:.9rem;white-space:nowrap;transition:all .2s;border-bottom:3px solid transparent}
+    nav button.active,nav button:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:var(--accent)}
+    main{max-width:1100px;margin:0 auto;padding:1.5rem}
+    .page{display:none}.page.active{display:block}
+    .card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1.5rem}
+    .card h2{color:var(--green);margin-bottom:1rem;font-size:1.2rem}
+    /* AUTH */
+    .auth-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center}
+    .auth-box{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:2.5rem;width:100%;max-width:420px}
+    .auth-box h2{color:var(--green);font-size:1.5rem;margin-bottom:1.5rem;text-align:center}
+    .auth-tabs{display:flex;gap:0;margin-bottom:1.5rem;border-radius:8px;overflow:hidden;border:2px solid var(--light-green)}
+    .auth-tab{flex:1;padding:.7rem;background:none;border:none;cursor:pointer;font-size:.95rem;color:var(--muted);transition:all .2s}
+    .auth-tab.active{background:var(--green);color:#fff;font-weight:bold}
+    .auth-form{display:flex;flex-direction:column;gap:1rem}
+    .auth-form input{border:2px solid #d0e8dc;border-radius:8px;padding:.7rem 1rem;font-size:1rem;outline:none;transition:border-color .2s}
+    .auth-form input:focus{border-color:var(--light-green)}
+    .auth-form button{background:var(--green);color:#fff;border:none;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:bold;transition:background .2s}
+    .auth-form button:hover{background:var(--light-green)}
+    .auth-error{background:#fde8e8;color:var(--red);border-radius:8px;padding:.6rem 1rem;font-size:.9rem;display:none}
+    .auth-error.show{display:block}
+    .auth-success{background:#d4edda;color:#155724;border-radius:8px;padding:.6rem 1rem;font-size:.9rem;display:none}
+    .auth-success.show{display:block}
+    /* LEADERBOARD */
+    .lb-table{width:100%;border-collapse:collapse}
+    .lb-table th{background:var(--green);color:#fff;padding:.7rem 1rem;text-align:left;font-size:.85rem}
+    .lb-table th:first-child{border-radius:8px 0 0 0}.lb-table th:last-child{border-radius:0 8px 0 0}
+    .lb-table td{padding:.75rem 1rem;border-bottom:1px solid #e8f0ec;font-size:.9rem}
+    .lb-table tr:hover td{background:#f0f7f4}
+    .rank{font-weight:bold;font-size:1rem;color:var(--muted)}
+    .rank.gold{color:#ffd700}.rank.silver{color:#c0c0c0}.rank.bronze{color:#cd7f32}
+    .score-under{color:var(--red);font-weight:bold}.score-over{color:var(--blue)}.score-even{color:var(--green);font-weight:bold}
+    /* SCORE INPUT */
+    .score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:.6rem;margin:1rem 0}
+    .score-cell{text-align:center}
+    .score-cell label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.2rem}
+    .score-cell input{width:100%;text-align:center;border:2px solid #d0e8dc;border-radius:8px;padding:.45rem;font-size:1rem;font-weight:bold;outline:none}
+    .score-cell input:focus{border-color:var(--light-green)}
+    .score-cell input.eagle{background:#ffd700}.score-cell input.birdie{background:#90e0ef}
+    .score-cell input.bogey{background:#ffb4a2}.score-cell input.dbl{background:#e63946;color:#fff}
+    .progress-wrap{background:#d0e8dc;border-radius:20px;height:7px;margin-top:.4rem}
+    .progress-bar{background:var(--light-green);height:7px;border-radius:20px;transition:width .5s}
+    /* FORMS */
+    .form-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:.8rem;align-items:flex-end}
+    .fg{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:140px}
+    .fg label{font-size:.8rem;color:var(--muted);font-weight:600}
+    .fg input,.fg select{border:2px solid #d0e8dc;border-radius:8px;padding:.55rem .9rem;font-size:.9rem;outline:none;transition:border-color .2s}
+    .fg input:focus,.fg select:focus{border-color:var(--light-green)}
+    .btn{background:var(--green);color:#fff;border:none;padding:.55rem 1.1rem;border-radius:8px;cursor:pointer;font-size:.88rem;transition:background .2s}
+    .btn:hover{background:var(--light-green)}.btn-red{background:var(--red)}.btn-red:hover{background:#c1121f}
+    .btn-acc{background:var(--accent);color:var(--text)}.btn-acc:hover{background:#ffbe00}
+    .alert-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:8px;padding:.7rem 1rem;margin-bottom:.8rem;display:none}
+    .alert-ok.show{display:block}
+    .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;flex-wrap:wrap;gap:.4rem}
+    .badge{background:var(--light-green);color:#fff;border-radius:20px;padding:.15rem .6rem;font-size:.78rem}
+    .hole-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem;margin-top:.8rem}
+    .hole-card{background:var(--bg);border-radius:10px;padding:.9rem;text-align:center;border:2px solid transparent}
+    .hole-card h3{font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem;margin-top:.8rem}
+    .stat-card{background:var(--bg);border-radius:10px;padding:1rem;text-align:center}
+    .stat-card .sv{font-size:1.8rem;font-weight:bold;color:var(--green)}.stat-card .sl{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+    .empty{text-align:center;color:var(--muted);padding:2.5rem 1rem}
+    .empty .icon{font-size:2.5rem;margin-bottom:.8rem}
+    .players-list{display:flex;flex-direction:column;gap:.6rem}
+    .p-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:10px;padding:.7rem 1rem;gap:.8rem;flex-wrap:wrap}
+    .p-info .name{font-weight:600}.p-info .sub{font-size:.78rem;color:var(--muted)}
+    .pill{background:var(--green);color:#fff;border-radius:20px;padding:.15rem .6rem;font-size:.82rem;font-weight:bold}
+    .pill.r{background:var(--red)}.pill.b{background:var(--blue)}
+    @media(max-width:600px){header h1{font-size:1.2rem}main{padding:.8rem}.lb-table th,.lb-table td{padding:.5rem .4rem;font-size:.8rem}}
   </style>
 </head>
 <body>
-<header>
-  <h1>&#9971; Golf Turnier Live Scoring</h1>
-  <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-    <div class="last-update" id="lastUpdate">Wird geladen...</div>
-  </div>
-</header>
-<nav>
-  <button class="active" onclick="showPage('leaderboard', this)">&#127942; Rangliste</button>
-  <button onclick="showPage('scoring', this)">&#9997; Scores eingeben</button>
-  <button onclick="showPage('players', this)">&#128100; Spieler</button>
-  <button onclick="showPage('course', this)">&#127966; Platz</button>
-  <button onclick="showPage('stats', this)">&#128202; Statistik</button>
-</nav>
-<main>
-  <div id="page-leaderboard" class="page active">
-    <div class="card">
-      <div class="section-header">
-        <h2>&#127942; Live Rangliste</h2>
-        <span class="badge" id="roundBadge">Runde 1</span>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <header style="justify-content:center">
+    <h1>&#9971; Golf Turnier Live Scoring</h1>
+  </header>
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <h2>&#128274; Anmelden</h2>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Einloggen</button>
+        <button class="auth-tab" onclick="switchAuthTab('register',this)">Registrieren</button>
       </div>
-      <div id="leaderboardContent">
-        <div class="empty-state"><div class="icon">&#9971;</div><p>Noch keine Scores. Spieler und Scores hinzuf&#252;gen!</p></div>
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <div class="auth-form">
+          <div id="loginError" class="auth-error">Falscher Benutzername oder Passwort!</div>
+          <input type="text" id="loginUser" placeholder="Benutzername" autocomplete="username"/>
+          <input type="password" id="loginPass" placeholder="Passwort" autocomplete="current-password"/>
+          <button onclick="doLogin()">&#128275; Einloggen</button>
+        </div>
+        <p style="margin-top:1rem;font-size:.85rem;color:var(--muted);text-align:center">Noch kein Konto? &#8594; Tab &bdquo;Registrieren&ldquo;</p>
       </div>
-    </div>
-  </div>
-  <div id="page-scoring" class="page">
-    <div class="card">
-      <h2>&#9997; Score eingeben</h2>
-      <div id="scoreAlert" class="alert">Score gespeichert!</div>
-      <div class="form-row">
-        <div class="form-group"><label>Spieler</label><select id="scorePlayer"><option value="">-- Spieler w&#228;hlen --</option></select></div>
-        <div class="form-group"><label>Runde</label><select id="scoreRound"><option value="1">Runde 1</option><option value="2">Runde 2</option><option value="3">Runde 3</option><option value="4">Runde 4</option></select></div>
-      </div>
-      <h3 style="color:var(--green);margin-bottom:0.5rem;">Loch-f&#252;r-Loch Scores (1-18)</h3>
-      <div class="score-input-grid" id="holeInputs"></div>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;">
-        <button class="btn" onclick="saveScore()">Speichern</button>
-        <button class="btn btn-accent" onclick="clearScoreForm()">Zur&#252;cksetzen</button>
+      <!-- REGISTER -->
+      <div id="registerForm" style="display:none">
+        <div class="auth-form">
+          <div id="regError" class="auth-error"></div>
+          <div id="regSuccess" class="auth-success">&#10003; Konto erstellt! Bitte einloggen.</div>
+          <input type="text" id="regUser" placeholder="Benutzername" autocomplete="username"/>
+          <input type="text" id="regName" placeholder="Dein Name (z.B. Max Mustermann)"/>
+          <input type="number" id="regHcp" placeholder="Handicap (z.B. 18)" min="-10" max="54" step="0.1"/>
+          <input type="password" id="regPass" placeholder="Passwort" autocomplete="new-password"/>
+          <input type="password" id="regPass2" placeholder="Passwort wiederholen" autocomplete="new-password"/>
+          <button onclick="doRegister()">&#128100; Konto erstellen</button>
+        </div>
       </div>
     </div>
   </div>
-  <div id="page-players" class="page">
-    <div class="card">
-      <h2>&#128100; Spieler hinzuf&#252;gen</h2>
-      <div class="form-row">
-        <div class="form-group"><label>Name</label><input type="text" id="playerName" placeholder="Max Mustermann" /></div>
-        <div class="form-group"><label>Handicap</label><input type="number" id="playerHandicap" placeholder="0" min="-10" max="54" step="0.1" /></div>
-        <div class="form-group"><label>Klub</label><input type="text" id="playerClub" placeholder="z.B. GC M&#252;nchen" /></div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn" onclick="addPlayer()">Hinzuf&#252;gen</button></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appScreen" style="display:none">
+  <header>
+    <h1>&#9971; Golf Turnier Live Scoring</h1>
+    <div class="user-bar">
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <span class="user-name" id="userNameDisplay"></span>
+      <button class="btn btn-red" style="padding:.3rem .8rem;font-size:.8rem" onclick="doLogout()">Abmelden</button>
+    </div>
+  </header>
+  <nav>
+    <button class="active" onclick="showPage('leaderboard',this)">&#127942; Rangliste</button>
+    <button onclick="showPage('myscore',this)">&#9997; Mein Score</button>
+    <button id="adminNavBtn" onclick="showPage('admin',this)" style="display:none">&#9881; Admin</button>
+    <button onclick="showPage('stats',this)">&#128202; Statistik</button>
+  </nav>
+  <main>
+    <!-- LEADERBOARD -->
+    <div id="page-leaderboard" class="page active">
+      <div class="card">
+        <div class="sec-hdr">
+          <h2>&#127942; Live Rangliste</h2>
+          <span class="badge" id="roundBadge">Runde 1</span>
+        </div>
+        <div id="lbContent"><div class="empty"><div class="icon">&#9971;</div><p>Noch keine Scores.</p></div></div>
       </div>
     </div>
-    <div class="card">
-      <div class="section-header"><h2>&#128101; Teilnehmerliste</h2><span class="badge" id="playerCount">0 Spieler</span></div>
-      <div class="players-list" id="playersList"><div class="empty-state"><div class="icon">&#128100;</div><p>Noch keine Spieler.</p></div></div>
-    </div>
-  </div>
-  <div id="page-course" class="page">
-    <div class="card">
-      <h2>&#127966; Platz-Info</h2>
-      <div class="form-row">
-        <div class="form-group"><label>Turnier Name</label><input type="text" id="tournamentName" placeholder="Mein Golf Turnier" /></div>
-        <div class="form-group"><label>Platz Name</label><input type="text" id="courseName" placeholder="GC Beispiel" /></div>
-        <div style="display:flex;align-items:flex-end;"><button class="btn" onclick="saveCourse()">Speichern</button></div>
+    <!-- MY SCORE -->
+    <div id="page-myscore" class="page">
+      <div class="card">
+        <h2>&#9997; Mein Score eingeben</h2>
+        <div id="scoreAlert" class="alert-ok">Score gespeichert!</div>
+        <div class="form-row">
+          <div class="fg"><label>Runde</label>
+            <select id="scoreRound">
+              <option value="1">Runde 1</option><option value="2">Runde 2</option>
+              <option value="3">Runde 3</option><option value="4">Runde 4</option>
+            </select>
+          </div>
+        </div>
+        <h3 style="color:var(--green);margin-bottom:.4rem;font-size:.95rem">Loch-f&#252;r-Loch (1-18)</h3>
+        <div class="score-grid" id="holeInputs"></div>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem">
+          <button class="btn" onclick="saveMyScore()">Speichern</button>
+          <button class="btn btn-acc" onclick="clearMyScore()">Leeren</button>
+        </div>
       </div>
     </div>
-    <div class="card">
-      <h2>&#9968; Loch-Setup (Par)</h2>
-      <div class="hole-grid" id="holeSetup"></div>
-      <div style="margin-top:1rem;">
-        <button class="btn" onclick="saveHoles()">Par speichern</button>
-        <span style="margin-left:1rem;color:var(--muted);font-size:0.9rem;">Gesamt Par: <strong id="totalPar">72</strong></span>
+    <!-- ADMIN -->
+    <div id="page-admin" class="page">
+      <div class="card">
+        <h2>&#9881; Turnier-Einstellungen</h2>
+        <div class="form-row">
+          <div class="fg"><label>Turnier Name</label><input type="text" id="adminTournament" placeholder="Mein Golf Turnier"/></div>
+          <div class="fg"><label>Platz Name</label><input type="text" id="adminCourse" placeholder="GC Beispiel"/></div>
+          <div class="fg"><label>Aktuelle Runde</label>
+            <select id="adminRound">
+              <option value="1">Runde 1</option><option value="2">Runde 2</option>
+              <option value="3">Runde 3</option><option value="4">Runde 4</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end"><button class="btn" onclick="saveAdminSettings()">Speichern</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>&#9968; Par-Einstellungen (18 L&#246;cher)</h2>
+        <div class="hole-grid" id="holeSetup"></div>
+        <div style="margin-top:1rem">
+          <button class="btn" onclick="saveHoles()">Par speichern</button>
+          <span style="margin-left:1rem;color:var(--muted);font-size:.88rem">Gesamt Par: <strong id="totalPar">72</strong></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-hdr"><h2>&#128101; Alle Spieler</h2><span class="badge" id="playerCount">0</span></div>
+        <div class="players-list" id="adminPlayersList"></div>
+      </div>
+      <div class="card">
+        <h2>&#128293; Daten zur&#252;cksetzen</h2>
+        <p style="color:var(--muted);margin-bottom:.8rem">Alle Scores und Spieler l&#246;schen.</p>
+        <button class="btn btn-red" onclick="resetAll()">Alles l&#246;schen</button>
       </div>
     </div>
-  </div>
-  <div id="page-stats" class="page">
-    <div class="card"><h2>&#128202; Turnier Statistik</h2><div class="stats-grid" id="statsGrid"></div></div>
-    <div class="card">
-      <h2>&#128293; Daten l&#246;schen</h2>
-      <p style="color:var(--muted);margin-bottom:1rem;">Achtung: Alle Daten werden unwiderruflich gel&#246;scht.</p>
-      <button class="btn btn-danger" onclick="resetAll()">Alle Daten l&#246;schen</button>
+    <!-- STATS -->
+    <div id="page-stats" class="page">
+      <div class="card"><h2>&#128202; Statistik</h2><div class="stats-grid" id="statsGrid"></div></div>
     </div>
-  </div>
-</main>
+  </main>
+</div>
+
 <script>
-  let state = JSON.parse(localStorage.getItem('golfScoring') || 'null') || {
-    tournament: 'Golf Turnier', course: 'Golfplatz', players: [], scores: {},
-    holes: Array.from({length:18}, (_,i) => ({ number: i+1, par: [4,4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4][i], yardage: 400 })),
-    currentRound: 1
+// ========== STATE ==========
+function loadState() {
+  return JSON.parse(localStorage.getItem('golfState') || 'null') || {
+    tournament:'Golf Turnier', course:'Golfplatz', currentRound:1,
+    users:{},   // {username:{name,handicap,passwordHash,isAdmin}}
+    scores:{},  // {username:{round:[s1..s18]}}
+    holes: Array.from({length:18},(_,i)=>({number:i+1,par:[4,4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4][i]}))
   };
-  function save() { localStorage.setItem('golfScoring', JSON.stringify(state)); updateLastUpdate(); }
-  function updateLastUpdate() { document.getElementById('lastUpdate').textContent = 'Stand: ' + new Date().toLocaleTimeString('de-DE'); }
-  function showPage(name, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    btn.classList.add('active');
-    if (name === 'leaderboard') renderLeaderboard();
-    if (name === 'players') renderPlayers();
-    if (name === 'scoring') renderScoringPage();
-    if (name === 'course') renderCoursePage();
-    if (name === 'stats') renderStats();
+}
+let S = loadState();
+let currentUser = localStorage.getItem('golfUser') || null;
+
+function saveState(){ localStorage.setItem('golfState',JSON.stringify(S)); }
+
+// simple hash
+function hash(s){ let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(16); }
+
+// ========== AUTH ==========
+function switchAuthTab(tab, btn){
+  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+}
+
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  err.classList.remove('show');
+  if(!u||!p){ err.textContent='Bitte alle Felder ausf&#252;llen!'; err.classList.add('show'); return; }
+  const user = S.users[u];
+  if(!user || user.passwordHash !== hash(p)){ err.textContent='Falscher Benutzername oder Passwort!'; err.classList.add('show'); return; }
+  currentUser = u;
+  localStorage.setItem('golfUser', u);
+  showApp();
+}
+
+function doRegister(){
+  const u = document.getElementById('regUser').value.trim().toLowerCase();
+  const n = document.getElementById('regName').value.trim();
+  const hcp = parseFloat(document.getElementById('regHcp').value)||0;
+  const p = document.getElementById('regPass').value;
+  const p2 = document.getElementById('regPass2').value;
+  const err = document.getElementById('regError');
+  const suc = document.getElementById('regSuccess');
+  err.classList.remove('show'); suc.classList.remove('show');
+  if(!u||!n||!p){ err.textContent='Bitte alle Felder ausf&#252;llen!'; err.classList.add('show'); return; }
+  if(u.length<3){ err.textContent='Benutzername mind. 3 Zeichen!'; err.classList.add('show'); return; }
+  if(p.length<4){ err.textContent='Passwort mind. 4 Zeichen!'; err.classList.add('show'); return; }
+  if(p!==p2){ err.textContent='Passw&#246;rter stimmen nicht &#252;berein!'; err.classList.add('show'); return; }
+  if(S.users[u]){ err.textContent='Benutzername bereits vergeben!'; err.classList.add('show'); return; }
+  const isFirstUser = Object.keys(S.users).length === 0;
+  S.users[u] = { name:n, handicap:hcp, passwordHash:hash(p), isAdmin:isFirstUser };
+  saveState();
+  suc.classList.add('show');
+  document.getElementById('regUser').value='';
+  document.getElementById('regName').value='';
+  document.getElementById('regHcp').value='';
+  document.getElementById('regPass').value='';
+  document.getElementById('regPass2').value='';
+  if(isFirstUser){ suc.textContent='&#10003; Konto erstellt! Du bist der erste Nutzer und damit Admin. Bitte einloggen.'; }
+}
+
+function doLogout(){
+  currentUser = null;
+  localStorage.removeItem('golfUser');
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('authScreen').style.display='block';
+}
+
+function showApp(){
+  S = loadState();
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  const u = S.users[currentUser];
+  document.getElementById('userNameDisplay').textContent = u ? '&#128100; ' + u.name : currentUser;
+  const adminBtn = document.getElementById('adminNavBtn');
+  adminBtn.style.display = (u && u.isAdmin) ? 'block' : 'none';
+  showPage('leaderboard', document.querySelector('nav button'));
+}
+
+// ========== NAVIGATION ==========
+function showPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='leaderboard') renderLeaderboard();
+  if(name==='myscore') renderMyScore();
+  if(name==='admin') renderAdmin();
+  if(name==='stats') renderStats();
+}
+
+// ========== LEADERBOARD ==========
+function getTotalPar(){ return S.holes.reduce((a,h)=>a+h.par,0); }
+
+function getTotal(username, round){
+  if(!S.scores[username]||!S.scores[username][round]) return 0;
+  return S.scores[username][round].reduce((a,b)=>a+b,0);
+}
+
+function renderLeaderboard(){
+  S = loadState();
+  const container = document.getElementById('lbContent');
+  document.getElementById('roundBadge').textContent = 'Runde '+S.currentRound;
+  const totalPar = getTotalPar();
+  const rows = Object.entries(S.users).map(([u,info])=>{
+    const total = getTotal(u, S.currentRound);
+    const hp = S.scores[u]&&S.scores[u][S.currentRound] ? S.scores[u][S.currentRound].filter(s=>s>0).length : 0;
+    return { name:info.name, handicap:info.handicap, total, hp, diff:total-totalPar };
+  }).filter(r=>r.hp>0).sort((a,b)=>a.total-b.total);
+
+  if(!rows.length){ container.innerHTML='<div class="empty"><div class="icon">&#9971;</div><p>Noch keine Scores eingetragen.</p></div>'; return; }
+  const T=['&#129351;','&#129352;','&#129353;'], RC=['gold','silver','bronze'];
+  container.innerHTML='<table class="lb-table"><thead><tr><th>Platz</th><th>Spieler</th><th>Score</th><th>+/-</th><th>L&#246;cher</th><th>HCP</th></tr></thead><tbody>'+
+    rows.map((r,i)=>{
+      const ds = r.diff===0?'E':(r.diff>0?'+'+r.diff:''+r.diff);
+      const dc = r.diff<0?'score-under':r.diff>0?'score-over':'score-even';
+      const ri = i<3?T[i]:(i+1)+'.'; const rk=i<3?RC[i]:'';
+      return '<tr><td><span class="rank '+rk+'">'+ri+'</span></td><td><strong>'+r.name+'</strong></td><td>'+r.total+'</td><td><span class="'+dc+'">'+ds+'</span></td><td>'+r.hp+'/18<div class="progress-wrap"><div class="progress-bar" style="width:'+(r.hp/18*100).toFixed(0)+'%"></div></div></td><td>'+r.handicap+'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+// ========== MY SCORE ==========
+function renderMyScore(){
+  S = loadState();
+  renderHoleInputs();
+}
+
+function renderHoleInputs(){
+  const c = document.getElementById('holeInputs');
+  c.innerHTML = S.holes.map(h=>'<div class="score-cell"><label>L'+h.number+' P'+h.par+'</label><input type="number" id="hi'+h.number+'" min="1" max="15" oninput="colorHole('+h.number+','+h.par+')" /></div>').join('');
+  const rnd = document.getElementById('scoreRound').value;
+  if(currentUser && S.scores[currentUser] && S.scores[currentUser][rnd]){
+    S.scores[currentUser][rnd].forEach((s,i)=>{ if(s>0){const inp=document.getElementById('hi'+(i+1));if(inp){inp.value=s;colorHole(i+1,S.holes[i].par);}} });
   }
-  function addPlayer() {
-    const name = document.getElementById('playerName').value.trim();
-    const hcp = parseFloat(document.getElementById('playerHandicap').value) || 0;
-    const club = document.getElementById('playerClub').value.trim();
-    if (!name) { alert('Bitte Namen eingeben!'); return; }
-    if (state.players.find(p => p.name === name)) { alert('Spieler bereits vorhanden!'); return; }
-    state.players.push({ id: Date.now(), name, handicap: hcp, club });
-    save(); renderPlayers(); renderScoringPage();
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerHandicap').value = '';
-    document.getElementById('playerClub').value = '';
-  }
-  function removePlayer(id) {
-    if (!confirm('Spieler entfernen?')) return;
-    state.players = state.players.filter(p => p.id !== id);
-    delete state.scores[id];
-    save(); renderPlayers(); renderScoringPage();
-  }
-  function renderPlayers() {
-    const list = document.getElementById('playersList');
-    document.getElementById('playerCount').textContent = state.players.length + ' Spieler';
-    if (!state.players.length) { list.innerHTML = '<div class="empty-state"><div class="icon">&#128100;</div><p>Noch keine Spieler.</p></div>'; return; }
-    list.innerHTML = state.players.map(p => {
-      const total = getPlayerTotal(p.id, state.currentRound);
-      const diff = total - getTotalPar();
-      const diffStr = diff === 0 ? 'E' : (diff > 0 ? '+' + diff : diff);
-      const pillClass = diff < 0 ? 'red' : diff > 0 ? 'blue' : '';
-      return '<div class="player-item"><div class="player-info"><div class="name">' + p.name + '</div><div class="handicap">HCP: ' + p.handicap + ' | ' + (p.club || 'Kein Klub') + '</div></div><div class="score-row"><span class="score-pill ' + pillClass + '">' + (total > 0 ? total + ' (' + diffStr + ')' : 'Kein Score') + '</span><button class="btn btn-danger" style="padding:0.3rem 0.7rem;font-size:0.8rem;" onclick="removePlayer(' + p.id + ')">Entfernen</button></div></div>';
-    }).join('');
-  }
-  function renderScoringPage() {
-    const sel = document.getElementById('scorePlayer');
-    if (!sel) return;
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">-- Spieler waehlen --</option>' + state.players.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
-    if (cur) sel.value = cur;
-    renderHoleInputs();
-  }
-  function renderHoleInputs() {
-    const c = document.getElementById('holeInputs');
-    c.innerHTML = state.holes.map(h => '<div class="score-cell"><label>Loch ' + h.number + ' (P' + h.par + ')</label><input type="number" id="hole_' + h.number + '" min="1" max="15" oninput="colorHole(' + h.number + ',' + h.par + ')" /></div>').join('');
-    const pid = document.getElementById('scorePlayer').value;
-    const rnd = document.getElementById('scoreRound').value;
-    if (pid && state.scores[pid] && state.scores[pid][rnd]) {
-      state.scores[pid][rnd].forEach((s, i) => { const inp = document.getElementById('hole_' + (i+1)); if (inp) { inp.value = s; colorHole(i+1, state.holes[i].par); } });
-    }
-  }
-  function colorHole(n, par) {
-    const inp = document.getElementById('hole_' + n);
-    if (!inp || !inp.value) return;
-    const v = parseInt(inp.value);
-    inp.className = '';
-    if (v <= par-2) inp.classList.add('eagle');
-    else if (v === par-1) inp.classList.add('birdie');
-    else if (v === par+1) inp.classList.add('bogey');
-    else if (v >= par+2) inp.classList.add('double-bogey');
-  }
-  function saveScore() {
-    const pid = document.getElementById('scorePlayer').value;
-    const rnd = document.getElementById('scoreRound').value;
-    if (!pid) { alert('Bitte Spieler waehlen!'); return; }
-    const scores = [];
-    for (let i = 1; i <= 18; i++) { const inp = document.getElementById('hole_' + i); scores.push(inp && inp.value ? parseInt(inp.value) : 0); }
-    if (!state.scores[pid]) state.scores[pid] = {};
-    state.scores[pid][rnd] = scores;
-    save();
-    const al = document.getElementById('scoreAlert');
-    al.classList.add('show');
-    setTimeout(() => al.classList.remove('show'), 3000);
-    renderLeaderboard();
-  }
-  function clearScoreForm() { document.getElementById('scorePlayer').value = ''; renderHoleInputs(); }
-  function getPlayerTotal(pid, rnd) {
-    if (!state.scores[pid] || !state.scores[pid][rnd]) return 0;
-    return state.scores[pid][rnd].reduce((a, b) => a + b, 0);
-  }
-  function getTotalPar() { return state.holes.reduce((a, h) => a + h.par, 0); }
-  function renderLeaderboard() {
-    const container = document.getElementById('leaderboardContent');
-    document.getElementById('roundBadge').textContent = 'Runde ' + state.currentRound;
-    const totalPar = getTotalPar();
-    const withScores = state.players.map(p => {
-      const total = getPlayerTotal(p.id, state.currentRound);
-      const hp = state.scores[p.id] && state.scores[p.id][state.currentRound] ? state.scores[p.id][state.currentRound].filter(s => s > 0).length : 0;
-      return { ...p, total, holesPlayed: hp, diff: total - totalPar };
-    }).filter(p => p.holesPlayed > 0).sort((a, b) => a.total - b.total);
-    if (!withScores.length) { container.innerHTML = '<div class="empty-state"><div class="icon">&#9971;</div><p>Noch keine Scores.</p></div>'; return; }
-    const trophies = ['&#129351;', '&#129352;', '&#129353;'];
-    const rankClasses = ['gold', 'silver', 'bronze'];
-    container.innerHTML = '<table class="leaderboard-table"><thead><tr><th>Platz</th><th>Spieler</th><th>Score</th><th>+/-</th><th>Loecher</th><th>HCP</th></tr></thead><tbody>' +
-      withScores.map((p, i) => {
-        const diffStr = p.diff === 0 ? 'E' : (p.diff > 0 ? '+' + p.diff : '' + p.diff);
-        const diffClass = p.diff < 0 ? 'score-under' : p.diff > 0 ? 'score-over' : 'score-even';
-        const rankIcon = i < 3 ? trophies[i] : (i+1) + '.';
-        const rankClass = i < 3 ? rankClasses[i] : '';
-        return '<tr><td><span class="rank ' + rankClass + '">' + rankIcon + '</span></td><td><span class="player-name">' + p.name + '</span><br><small style="color:var(--muted)">' + (p.club || '') + '</small></td><td>' + p.total + '</td><td><span class="' + diffClass + '">' + diffStr + '</span></td><td>' + p.holesPlayed + '/18<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + (p.holesPlayed/18*100).toFixed(0) + '%"></div></div></td><td>' + p.handicap + '</td></tr>';
-      }).join('') + '</tbody></table>';
-  }
-  function renderCoursePage() {
-    document.getElementById('tournamentName').value = state.tournament || '';
-    document.getElementById('courseName').value = state.course || '';
-    document.getElementById('holeSetup').innerHTML = state.holes.map(h =>
-      '<div class="hole-card"><h3>Loch ' + h.number + '</h3><div>Par <input type="number" id="par_' + h.number + '" value="' + h.par + '" min="3" max="5" style="width:50px;border:1px solid #ccc;border-radius:5px;text-align:center;" oninput="updateTotalPar()" /></div><div><input type="number" id="yard_' + h.number + '" value="' + (h.yardage||400) + '" min="50" max="600" style="width:65px;border:1px solid #ccc;border-radius:5px;text-align:center;" /> Yards</div></div>'
-    ).join('');
-    updateTotalPar();
-  }
-  function updateTotalPar() { let t = 0; for (let i=1;i<=18;i++){const inp=document.getElementById('par_'+i);if(inp)t+=parseInt(inp.value)||0;} document.getElementById('totalPar').textContent=t; }
-  function saveCourse() { state.tournament=document.getElementById('tournamentName').value.trim()||'Golf Turnier'; state.course=document.getElementById('courseName').value.trim()||'Golfplatz'; save(); alert('Gespeichert!'); }
-  function saveHoles() { for(let i=0;i<18;i++){const pi=document.getElementById('par_'+(i+1));const yi=document.getElementById('yard_'+(i+1));if(pi)state.holes[i].par=parseInt(pi.value)||4;if(yi)state.holes[i].yardage=parseInt(yi.value)||400;} save(); alert('Platz gespeichert!'); }
-  function renderStats() {
-    const totalPar = getTotalPar();
-    let eagles=0,birdies=0,bogeys=0; let best=null;
-    state.players.forEach(p => {
-      const sc = state.scores[p.id] && state.scores[p.id][state.currentRound];
-      if (!sc) return;
-      sc.forEach((s,i) => { if(s<=0)return; const par=state.holes[i].par; if(s<=par-2)eagles++; else if(s===par-1)birdies++; else if(s>=par+1)bogeys++; });
-      const total = getPlayerTotal(p.id, state.currentRound);
-      if (total > 0 && (!best || total < best.total)) best = { name: p.name, total };
-    });
-    const stats = [
-      {label:'Spieler',value:state.players.length,icon:'&#128100;'},
-      {label:'Total Par',value:totalPar,icon:'&#9968;'},
-      {label:'Eagles',value:eagles,icon:'&#129413;'},
-      {label:'Birdies',value:birdies,icon:'&#128038;'},
-      {label:'Bogeys',value:bogeys,icon:'&#128549;'},
-      {label:'Fuehrender',value:best?best.name:'-',icon:'&#129351;'}
-    ];
-    document.getElementById('statsGrid').innerHTML = stats.map(s => '<div class="stat-card"><div class="stat-value">' + s.icon + '</div><div class="stat-value" style="font-size:1.5rem;">' + s.value + '</div><div class="stat-label">' + s.label + '</div></div>').join('');
-  }
-  function resetAll() { if(!confirm('Alle Daten loeschen?'))return; localStorage.removeItem('golfScoring'); location.reload(); }
-  renderLeaderboard(); renderScoringPage(); updateLastUpdate();
-  setInterval(updateLastUpdate, 60000);
-  document.getElementById('scorePlayer').addEventListener('change', renderHoleInputs);
-  document.getElementById('scoreRound').addEventListener('change', renderHoleInputs);
+}
+
+function colorHole(n,par){
+  const inp=document.getElementById('hi'+n);
+  if(!inp||!inp.value) return;
+  const v=parseInt(inp.value); inp.className='';
+  if(v<=par-2) inp.classList.add('eagle');
+  else if(v===par-1) inp.classList.add('birdie');
+  else if(v===par+1) inp.classList.add('bogey');
+  else if(v>=par+2) inp.classList.add('dbl');
+}
+
+function saveMyScore(){
+  if(!currentUser){doLogout();return;}
+  const rnd = document.getElementById('scoreRound').value;
+  const sc=[];
+  for(let i=1;i<=18;i++){const inp=document.getElementById('hi'+i);sc.push(inp&&inp.value?parseInt(inp.value):0);}
+  if(!S.scores[currentUser]) S.scores[currentUser]={};
+  S.scores[currentUser][rnd]=sc;
+  saveState();
+  const al=document.getElementById('scoreAlert');
+  al.classList.add('show');
+  setTimeout(()=>al.classList.remove('show'),3000);
+}
+
+function clearMyScore(){
+  renderHoleInputs();
+}
+
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='scoreRound')renderHoleInputs();});
+
+// ========== ADMIN ==========
+function renderAdmin(){
+  S = loadState();
+  document.getElementById('adminTournament').value = S.tournament||'';
+  document.getElementById('adminCourse').value = S.course||'';
+  document.getElementById('adminRound').value = S.currentRound;
+  // holes
+  document.getElementById('holeSetup').innerHTML = S.holes.map(h=>
+    '<div class="hole-card"><h3>Loch '+h.number+'</h3><div>Par <input type="number" id="par'+h.number+'" value="'+h.par+'" min="3" max="5" style="width:48px;border:1px solid #ccc;border-radius:5px;text-align:center" oninput="updPar()"/></div></div>'
+  ).join('');
+  updPar();
+  // players list
+  const list = document.getElementById('adminPlayersList');
+  const entries = Object.entries(S.users);
+  document.getElementById('playerCount').textContent = entries.length + ' Spieler';
+  if(!entries.length){ list.innerHTML='<div class="empty"><p>Keine Spieler registriert.</p></div>'; return; }
+  list.innerHTML = entries.map(([u,info])=>{
+    const total = getTotal(u, S.currentRound);
+    const isAdmin = info.isAdmin ? ' &#9881;Admin' : '';
+    return '<div class="p-item"><div class="p-info"><div class="name">'+info.name+isAdmin+'</div><div class="sub">@'+u+' | HCP: '+info.handicap+'</div></div><div><span class="pill">'+(total>0?total+' Pkt':'Kein Score')+'</span></div></div>';
+  }).join('');
+}
+
+function saveAdminSettings(){
+  S.tournament = document.getElementById('adminTournament').value.trim()||'Golf Turnier';
+  S.course = document.getElementById('adminCourse').value.trim()||'Golfplatz';
+  S.currentRound = parseInt(document.getElementById('adminRound').value)||1;
+  saveState();
+  alert('Einstellungen gespeichert!');
+}
+
+function updPar(){
+  let t=0;
+  for(let i=1;i<=18;i++){const inp=document.getElementById('par'+i);if(inp)t+=parseInt(inp.value)||0;}
+  document.getElementById('totalPar').textContent=t;
+}
+
+function saveHoles(){
+  for(let i=0;i<18;i++){const p=document.getElementById('par'+(i+1));if(p)S.holes[i].par=parseInt(p.value)||4;}
+  saveState(); alert('Par gespeichert!');
+}
+
+function resetAll(){
+  if(!confirm('WIRKLICH alle Scores und Spieler loeschen?')) return;
+  S.scores={}; S.users={}; S.currentRound=1;
+  saveState(); doLogout();
+}
+
+// ========== STATS ==========
+function renderStats(){
+  S = loadState();
+  const totalPar=getTotalPar(); let eagles=0,birdies=0,bogeys=0,best=null;
+  Object.entries(S.scores).forEach(([u,rounds])=>{
+    const sc=rounds[S.currentRound]; if(!sc) return;
+    sc.forEach((s,i)=>{if(s<=0)return;const par=S.holes[i].par;if(s<=par-2)eagles++;else if(s===par-1)birdies++;else if(s>=par+1)bogeys++;});
+    const t=getTotal(u,S.currentRound);
+    if(t>0&&(!best||t<best.t)) best={name:S.users[u]&&S.users[u].name||u,t};
+  });
+  const items=[
+    {l:'Spieler',v:Object.keys(S.users).length,i:'&#128100;'},
+    {l:'Total Par',v:totalPar,i:'&#9968;'},
+    {l:'Eagles',v:eagles,i:'&#129413;'},
+    {l:'Birdies',v:birdies,i:'&#128038;'},
+    {l:'Bogeys',v:bogeys,i:'&#128549;'},
+    {l:'F&#252;hrender',v:best?best.name:'-',i:'&#129351;'}
+  ];
+  document.getElementById('statsGrid').innerHTML=items.map(it=>'<div class="stat-card"><div class="sv">'+it.i+'</div><div class="sv" style="font-size:1.3rem">'+it.v+'</div><div class="sl">'+it.l+'</div></div>').join('');
+}
+
+// ========== INIT ==========
+if(currentUser && S.users[currentUser]){
+  showApp();
+} else {
+  currentUser=null; localStorage.removeItem('golfUser');
+}
 </script>
 </body>
 </html>
