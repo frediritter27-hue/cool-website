@@ -6,124 +6,111 @@
   <title>Golf Turnier Live Scoring</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --green:#2d6a4f;--light-green:#40916c;--accent:#ffd166;
-      --bg:#f0f7f4;--card:#fff;--text:#1b2d27;--muted:#6b7c78;
-      --red:#e63946;--blue:#4361ee;--shadow:0 4px 20px rgba(0,0,0,.10)
-    }
+    :root{--green:#2d6a4f;--lg:#40916c;--acc:#ffd166;--bg:#f0f7f4;--card:#fff;--text:#1b2d27;--muted:#6b7c78;--red:#e63946;--blue:#4361ee;--sh:0 4px 20px rgba(0,0,0,.10)}
     body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-    header{background:linear-gradient(135deg,var(--green),var(--light-green));color:#fff;padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;box-shadow:0 2px 10px rgba(0,0,0,.2)}
-    header h1{font-size:1.6rem}
-    .live-badge{background:var(--red);color:#fff;padding:.2rem .7rem;border-radius:20px;font-size:.8rem;font-weight:bold;display:flex;align-items:center;gap:.4rem;animation:pulse 2s infinite}
+    header{background:linear-gradient(135deg,var(--green),var(--lg));color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+    header h1{font-size:1.4rem}
+    .live-badge{background:var(--red);color:#fff;padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:bold;display:flex;align-items:center;gap:.3rem;animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-    .live-dot{width:8px;height:8px;background:#fff;border-radius:50%}
-    .user-bar{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
-    .user-name{font-size:.9rem;opacity:.9}
-    nav{background:var(--green);display:flex;overflow-x:auto;border-bottom:2px solid var(--light-green)}
-    nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:.8rem 1.3rem;cursor:pointer;font-size:.9rem;white-space:nowrap;transition:all .2s;border-bottom:3px solid transparent}
-    nav button.active,nav button:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:var(--accent)}
-    main{max-width:1100px;margin:0 auto;padding:1.5rem}
+    .live-dot{width:7px;height:7px;background:#fff;border-radius:50%}
+    nav{background:var(--green);display:flex;overflow-x:auto;border-bottom:2px solid var(--lg)}
+    nav button{background:none;border:none;color:rgba(255,255,255,.7);padding:.75rem 1.2rem;cursor:pointer;font-size:.88rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
+    nav button.active,nav button:hover{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:var(--acc)}
+    main{max-width:1000px;margin:0 auto;padding:1.2rem}
     .page{display:none}.page.active{display:block}
-    .card{background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1.5rem}
-    .card h2{color:var(--green);margin-bottom:1rem;font-size:1.2rem}
-    /* AUTH */
+    .card{background:var(--card);border-radius:12px;box-shadow:var(--sh);padding:1.3rem;margin-bottom:1.2rem}
+    .card h2{color:var(--green);margin-bottom:.9rem;font-size:1.1rem}
     .auth-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center}
-    .auth-box{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:2.5rem;width:100%;max-width:420px}
-    .auth-box h2{color:var(--green);font-size:1.5rem;margin-bottom:1.5rem;text-align:center}
-    .auth-tabs{display:flex;gap:0;margin-bottom:1.5rem;border-radius:8px;overflow:hidden;border:2px solid var(--light-green)}
-    .auth-tab{flex:1;padding:.7rem;background:none;border:none;cursor:pointer;font-size:.95rem;color:var(--muted);transition:all .2s}
-    .auth-tab.active{background:var(--green);color:#fff;font-weight:bold}
-    .auth-form{display:flex;flex-direction:column;gap:1rem}
-    .auth-form input{border:2px solid #d0e8dc;border-radius:8px;padding:.7rem 1rem;font-size:1rem;outline:none;transition:border-color .2s}
-    .auth-form input:focus{border-color:var(--light-green)}
-    .auth-form button{background:var(--green);color:#fff;border:none;padding:.8rem;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:bold;transition:background .2s}
-    .auth-form button:hover{background:var(--light-green)}
-    .auth-error{background:#fde8e8;color:var(--red);border-radius:8px;padding:.6rem 1rem;font-size:.9rem;display:none}
-    .auth-error.show{display:block}
-    .auth-success{background:#d4edda;color:#155724;border-radius:8px;padding:.6rem 1rem;font-size:.9rem;display:none}
-    .auth-success.show{display:block}
-    /* LEADERBOARD */
+    .auth-box{background:var(--card);border-radius:16px;box-shadow:var(--sh);padding:2rem;width:100%;max-width:400px}
+    .auth-box h2{color:var(--green);font-size:1.4rem;margin-bottom:1.2rem;text-align:center}
+    .auth-tabs{display:flex;margin-bottom:1.2rem;border-radius:8px;overflow:hidden;border:2px solid var(--lg)}
+    .at{flex:1;padding:.6rem;background:none;border:none;cursor:pointer;font-size:.9rem;color:var(--muted);transition:all .2s}
+    .at.active{background:var(--green);color:#fff;font-weight:bold}
+    .af{display:flex;flex-direction:column;gap:.8rem}
+    .af input{border:2px solid #d0e8dc;border-radius:8px;padding:.65rem .9rem;font-size:.95rem;outline:none;transition:border-color .2s}
+    .af input:focus{border-color:var(--lg)}
+    .af button{background:var(--green);color:#fff;border:none;padding:.75rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:bold}
+    .af button:hover{background:var(--lg)}
+    .ae{background:#fde8e8;color:var(--red);border-radius:8px;padding:.5rem .9rem;font-size:.85rem;display:none}
+    .ae.show{display:block}
+    .as{background:#d4edda;color:#155724;border-radius:8px;padding:.5rem .9rem;font-size:.85rem;display:none}
+    .as.show{display:block}
     .lb-table{width:100%;border-collapse:collapse}
-    .lb-table th{background:var(--green);color:#fff;padding:.7rem 1rem;text-align:left;font-size:.85rem}
+    .lb-table th{background:var(--green);color:#fff;padding:.65rem .9rem;text-align:left;font-size:.82rem}
     .lb-table th:first-child{border-radius:8px 0 0 0}.lb-table th:last-child{border-radius:0 8px 0 0}
-    .lb-table td{padding:.75rem 1rem;border-bottom:1px solid #e8f0ec;font-size:.9rem}
+    .lb-table td{padding:.7rem .9rem;border-bottom:1px solid #e8f0ec;font-size:.88rem}
     .lb-table tr:hover td{background:#f0f7f4}
-    .rank{font-weight:bold;font-size:1rem;color:var(--muted)}
-    .rank.gold{color:#ffd700}.rank.silver{color:#c0c0c0}.rank.bronze{color:#cd7f32}
-    .score-under{color:var(--red);font-weight:bold}.score-over{color:var(--blue)}.score-even{color:var(--green);font-weight:bold}
-    /* SCORE INPUT */
-    .score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:.6rem;margin:1rem 0}
-    .score-cell{text-align:center}
-    .score-cell label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.2rem}
-    .score-cell input{width:100%;text-align:center;border:2px solid #d0e8dc;border-radius:8px;padding:.45rem;font-size:1rem;font-weight:bold;outline:none}
-    .score-cell input:focus{border-color:var(--light-green)}
-    .score-cell input.eagle{background:#ffd700}.score-cell input.birdie{background:#90e0ef}
-    .score-cell input.bogey{background:#ffb4a2}.score-cell input.dbl{background:#e63946;color:#fff}
-    .progress-wrap{background:#d0e8dc;border-radius:20px;height:7px;margin-top:.4rem}
-    .progress-bar{background:var(--light-green);height:7px;border-radius:20px;transition:width .5s}
-    /* FORMS */
-    .form-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:.8rem;align-items:flex-end}
-    .fg{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:140px}
-    .fg label{font-size:.8rem;color:var(--muted);font-weight:600}
-    .fg input,.fg select{border:2px solid #d0e8dc;border-radius:8px;padding:.55rem .9rem;font-size:.9rem;outline:none;transition:border-color .2s}
-    .fg input:focus,.fg select:focus{border-color:var(--light-green)}
-    .btn{background:var(--green);color:#fff;border:none;padding:.55rem 1.1rem;border-radius:8px;cursor:pointer;font-size:.88rem;transition:background .2s}
-    .btn:hover{background:var(--light-green)}.btn-red{background:var(--red)}.btn-red:hover{background:#c1121f}
-    .btn-acc{background:var(--accent);color:var(--text)}.btn-acc:hover{background:#ffbe00}
-    .alert-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:8px;padding:.7rem 1rem;margin-bottom:.8rem;display:none}
-    .alert-ok.show{display:block}
-    .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;flex-wrap:wrap;gap:.4rem}
-    .badge{background:var(--light-green);color:#fff;border-radius:20px;padding:.15rem .6rem;font-size:.78rem}
-    .hole-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem;margin-top:.8rem}
-    .hole-card{background:var(--bg);border-radius:10px;padding:.9rem;text-align:center;border:2px solid transparent}
-    .hole-card h3{font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem;margin-top:.8rem}
-    .stat-card{background:var(--bg);border-radius:10px;padding:1rem;text-align:center}
-    .stat-card .sv{font-size:1.8rem;font-weight:bold;color:var(--green)}.stat-card .sl{font-size:.8rem;color:var(--muted);margin-top:.2rem}
-    .empty{text-align:center;color:var(--muted);padding:2.5rem 1rem}
-    .empty .icon{font-size:2.5rem;margin-bottom:.8rem}
-    .players-list{display:flex;flex-direction:column;gap:.6rem}
-    .p-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:10px;padding:.7rem 1rem;gap:.8rem;flex-wrap:wrap}
-    .p-info .name{font-weight:600}.p-info .sub{font-size:.78rem;color:var(--muted)}
-    .pill{background:var(--green);color:#fff;border-radius:20px;padding:.15rem .6rem;font-size:.82rem;font-weight:bold}
+    .rank{font-weight:bold;color:var(--muted)}.rank.gold{color:#ffd700}.rank.silver{color:#c0c0c0}.rank.bronze{color:#cd7f32}
+    .su{color:var(--red);font-weight:bold}.so{color:var(--blue)}.se{color:var(--green);font-weight:bold}
+    .score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(75px,1fr));gap:.5rem;margin:.8rem 0}
+    .sc{text-align:center}
+    .sc label{display:block;font-size:.68rem;color:var(--muted);margin-bottom:.2rem}
+    .sc input{width:100%;text-align:center;border:2px solid #d0e8dc;border-radius:8px;padding:.4rem;font-size:.95rem;font-weight:bold;outline:none}
+    .sc input:focus{border-color:var(--lg)}
+    .sc input.eagle{background:#ffd700}.sc input.birdie{background:#90e0ef}.sc input.bogey{background:#ffb4a2}.sc input.dbl{background:#e63946;color:#fff}
+    .pw{background:#d0e8dc;border-radius:20px;height:6px;margin-top:.3rem}
+    .pb{background:var(--lg);height:6px;border-radius:20px;transition:width .5s}
+    .fr{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem;align-items:flex-end}
+    .fg{display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:130px}
+    .fg label{font-size:.78rem;color:var(--muted);font-weight:600}
+    .fg input,.fg select{border:2px solid #d0e8dc;border-radius:8px;padding:.5rem .8rem;font-size:.88rem;outline:none}
+    .fg input:focus,.fg select:focus{border-color:var(--lg)}
+    .btn{background:var(--green);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:background .2s}
+    .btn:hover{background:var(--lg)}.br{background:var(--red)}.br:hover{background:#c1121f}
+    .ba{background:var(--acc);color:var(--text)}.ba:hover{background:#ffbe00}
+    .aok{background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:8px;padding:.6rem .9rem;margin-bottom:.7rem;display:none}
+    .aok.show{display:block}
+    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;flex-wrap:wrap;gap:.4rem}
+    .badge{background:var(--lg);color:#fff;border-radius:20px;padding:.12rem .55rem;font-size:.75rem}
+    .hg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem;margin-top:.7rem}
+    .hc{background:var(--bg);border-radius:10px;padding:.8rem;text-align:center}
+    .hc h3{font-size:.78rem;color:var(--muted);margin-bottom:.25rem}
+    .pl{display:flex;flex-direction:column;gap:.5rem}
+    .pi{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:10px;padding:.65rem .9rem;gap:.7rem;flex-wrap:wrap}
+    .pn{font-weight:600}.ps{font-size:.76rem;color:var(--muted)}
+    .pill{background:var(--green);color:#fff;border-radius:20px;padding:.12rem .55rem;font-size:.8rem;font-weight:bold}
     .pill.r{background:var(--red)}.pill.b{background:var(--blue)}
-    @media(max-width:600px){header h1{font-size:1.2rem}main{padding:.8rem}.lb-table th,.lb-table td{padding:.5rem .4rem;font-size:.8rem}}
+    .sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem;margin-top:.7rem}
+    .scard{background:var(--bg);border-radius:10px;padding:.9rem;text-align:center}
+    .sv{font-size:1.6rem;font-weight:bold;color:var(--green)}.sl{font-size:.78rem;color:var(--muted);margin-top:.2rem}
+    .empty{text-align:center;color:var(--muted);padding:2rem 1rem}
+    .empty .ei{font-size:2.2rem;margin-bottom:.6rem}
+    .spin{display:inline-block;width:18px;height:18px;border:3px solid #d0e8dc;border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:.4rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .ubar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+    .uname{font-size:.85rem;opacity:.9}
+    @media(max-width:600px){header h1{font-size:1.1rem}main{padding:.7rem}.lb-table th,.lb-table td{padding:.45rem .35rem;font-size:.78rem}}
   </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="authScreen">
-  <header style="justify-content:center">
-    <h1>&#9971; Golf Turnier Live Scoring</h1>
-  </header>
+  <header style="justify-content:center"><h1>&#9971; Golf Turnier Live Scoring</h1></header>
   <div class="auth-wrap">
     <div class="auth-box">
       <h2>&#128274; Anmelden</h2>
       <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Einloggen</button>
-        <button class="auth-tab" onclick="switchAuthTab('register',this)">Registrieren</button>
+        <button class="at active" onclick="authTab('login',this)">Einloggen</button>
+        <button class="at" onclick="authTab('register',this)">Registrieren</button>
       </div>
-      <!-- LOGIN -->
-      <div id="loginForm">
-        <div class="auth-form">
-          <div id="loginError" class="auth-error">Falscher Benutzername oder Passwort!</div>
-          <input type="text" id="loginUser" placeholder="Benutzername" autocomplete="username"/>
-          <input type="password" id="loginPass" placeholder="Passwort" autocomplete="current-password"/>
+      <div id="loginF">
+        <div class="af">
+          <div id="lErr" class="ae"></div>
+          <input type="text" id="lUser" placeholder="Benutzername" autocomplete="username"/>
+          <input type="password" id="lPass" placeholder="Passwort" autocomplete="current-password"/>
           <button onclick="doLogin()">&#128275; Einloggen</button>
         </div>
-        <p style="margin-top:1rem;font-size:.85rem;color:var(--muted);text-align:center">Noch kein Konto? &#8594; Tab &bdquo;Registrieren&ldquo;</p>
       </div>
-      <!-- REGISTER -->
-      <div id="registerForm" style="display:none">
-        <div class="auth-form">
-          <div id="regError" class="auth-error"></div>
-          <div id="regSuccess" class="auth-success">&#10003; Konto erstellt! Bitte einloggen.</div>
-          <input type="text" id="regUser" placeholder="Benutzername" autocomplete="username"/>
-          <input type="text" id="regName" placeholder="Dein Name (z.B. Max Mustermann)"/>
-          <input type="number" id="regHcp" placeholder="Handicap (z.B. 18)" min="-10" max="54" step="0.1"/>
-          <input type="password" id="regPass" placeholder="Passwort" autocomplete="new-password"/>
-          <input type="password" id="regPass2" placeholder="Passwort wiederholen" autocomplete="new-password"/>
+      <div id="registerF" style="display:none">
+        <div class="af">
+          <div id="rErr" class="ae"></div>
+          <div id="rOk" class="as">Konto erstellt! Bitte einloggen.</div>
+          <input type="text" id="rUser" placeholder="Benutzername (mind. 3 Zeichen)"/>
+          <input type="text" id="rName" placeholder="Dein vollst&#228;ndiger Name"/>
+          <input type="number" id="rHcp" placeholder="Handicap (z.B. 18)" min="-10" max="54" step="0.1"/>
+          <input type="password" id="rPass" placeholder="Passwort (mind. 4 Zeichen)"/>
+          <input type="password" id="rPass2" placeholder="Passwort wiederholen"/>
           <button onclick="doRegister()">&#128100; Konto erstellen</button>
         </div>
       </div>
@@ -131,339 +118,278 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="appScreen" style="display:none">
   <header>
     <h1>&#9971; Golf Turnier Live Scoring</h1>
-    <div class="user-bar">
+    <div class="ubar">
       <div class="live-badge"><div class="live-dot"></div> LIVE</div>
-      <span class="user-name" id="userNameDisplay"></span>
-      <button class="btn btn-red" style="padding:.3rem .8rem;font-size:.8rem" onclick="doLogout()">Abmelden</button>
+      <span class="uname" id="uDisplay"></span>
+      <button class="btn br" style="padding:.25rem .7rem;font-size:.78rem" onclick="doLogout()">Abmelden</button>
     </div>
   </header>
   <nav>
-    <button class="active" onclick="showPage('leaderboard',this)">&#127942; Rangliste</button>
-    <button onclick="showPage('myscore',this)">&#9997; Mein Score</button>
-    <button id="adminNavBtn" onclick="showPage('admin',this)" style="display:none">&#9881; Admin</button>
+    <button class="active" onclick="showPage('lb',this)">&#127942; Rangliste</button>
+    <button onclick="showPage('my',this)">&#9997; Mein Score</button>
+    <button id="admBtn" onclick="showPage('adm',this)" style="display:none">&#9881; Admin</button>
     <button onclick="showPage('stats',this)">&#128202; Statistik</button>
   </nav>
   <main>
-    <!-- LEADERBOARD -->
-    <div id="page-leaderboard" class="page active">
+    <div id="page-lb" class="page active">
       <div class="card">
-        <div class="sec-hdr">
-          <h2>&#127942; Live Rangliste</h2>
-          <span class="badge" id="roundBadge">Runde 1</span>
-        </div>
-        <div id="lbContent"><div class="empty"><div class="icon">&#9971;</div><p>Noch keine Scores.</p></div></div>
+        <div class="sh"><h2>&#127942; Live Rangliste</h2><span class="badge" id="rndBadge">Runde 1</span></div>
+        <div id="lbArea"><div class="empty"><div class="ei">&#9971;</div><p>Lade...</p></div></div>
       </div>
     </div>
-    <!-- MY SCORE -->
-    <div id="page-myscore" class="page">
+    <div id="page-my" class="page">
       <div class="card">
-        <h2>&#9997; Mein Score eingeben</h2>
-        <div id="scoreAlert" class="alert-ok">Score gespeichert!</div>
-        <div class="form-row">
-          <div class="fg"><label>Runde</label>
-            <select id="scoreRound">
-              <option value="1">Runde 1</option><option value="2">Runde 2</option>
-              <option value="3">Runde 3</option><option value="4">Runde 4</option>
-            </select>
-          </div>
-        </div>
-        <h3 style="color:var(--green);margin-bottom:.4rem;font-size:.95rem">Loch-f&#252;r-Loch (1-18)</h3>
-        <div class="score-grid" id="holeInputs"></div>
-        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem">
+        <h2>&#9997; Mein Score</h2>
+        <div id="myAlert" class="aok">Gespeichert!</div>
+        <div class="fr"><div class="fg"><label>Runde</label>
+          <select id="myRound"><option value="1">Runde 1</option><option value="2">Runde 2</option><option value="3">Runde 3</option><option value="4">Runde 4</option></select>
+        </div></div>
+        <div class="score-grid" id="myHoles"></div>
+        <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.8rem">
           <button class="btn" onclick="saveMyScore()">Speichern</button>
-          <button class="btn btn-acc" onclick="clearMyScore()">Leeren</button>
+          <button class="btn ba" onclick="clearHoles()">Leeren</button>
         </div>
       </div>
     </div>
-    <!-- ADMIN -->
-    <div id="page-admin" class="page">
+    <div id="page-adm" class="page">
       <div class="card">
         <h2>&#9881; Turnier-Einstellungen</h2>
-        <div class="form-row">
-          <div class="fg"><label>Turnier Name</label><input type="text" id="adminTournament" placeholder="Mein Golf Turnier"/></div>
-          <div class="fg"><label>Platz Name</label><input type="text" id="adminCourse" placeholder="GC Beispiel"/></div>
+        <div class="fr">
+          <div class="fg"><label>Turnier Name</label><input type="text" id="aTour" placeholder="Mein Turnier"/></div>
+          <div class="fg"><label>Platz</label><input type="text" id="aCourse" placeholder="GC Beispiel"/></div>
           <div class="fg"><label>Aktuelle Runde</label>
-            <select id="adminRound">
-              <option value="1">Runde 1</option><option value="2">Runde 2</option>
-              <option value="3">Runde 3</option><option value="4">Runde 4</option>
-            </select>
+            <select id="aRound"><option value="1">Runde 1</option><option value="2">Runde 2</option><option value="3">Runde 3</option><option value="4">Runde 4</option></select>
           </div>
-          <div style="display:flex;align-items:flex-end"><button class="btn" onclick="saveAdminSettings()">Speichern</button></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn" onclick="saveAdm()">Speichern</button></div>
         </div>
       </div>
       <div class="card">
-        <h2>&#9968; Par-Einstellungen (18 L&#246;cher)</h2>
-        <div class="hole-grid" id="holeSetup"></div>
-        <div style="margin-top:1rem">
-          <button class="btn" onclick="saveHoles()">Par speichern</button>
-          <span style="margin-left:1rem;color:var(--muted);font-size:.88rem">Gesamt Par: <strong id="totalPar">72</strong></span>
-        </div>
+        <h2>&#9968; Par-Einstellungen</h2>
+        <div class="hg" id="admHoles"></div>
+        <div style="margin-top:.8rem"><button class="btn" onclick="savePar()">Par speichern</button>
+          <span style="margin-left:.8rem;color:var(--muted);font-size:.85rem">Gesamt: <strong id="totPar">72</strong></span></div>
       </div>
       <div class="card">
-        <div class="sec-hdr"><h2>&#128101; Alle Spieler</h2><span class="badge" id="playerCount">0</span></div>
-        <div class="players-list" id="adminPlayersList"></div>
-      </div>
-      <div class="card">
-        <h2>&#128293; Daten zur&#252;cksetzen</h2>
-        <p style="color:var(--muted);margin-bottom:.8rem">Alle Scores und Spieler l&#246;schen.</p>
-        <button class="btn btn-red" onclick="resetAll()">Alles l&#246;schen</button>
+        <div class="sh"><h2>&#128101; Spieler</h2><span class="badge" id="admCount">0</span></div>
+        <div class="pl" id="admPlayers"></div>
       </div>
     </div>
-    <!-- STATS -->
     <div id="page-stats" class="page">
-      <div class="card"><h2>&#128202; Statistik</h2><div class="stats-grid" id="statsGrid"></div></div>
+      <div class="card"><h2>&#128202; Statistik</h2><div class="sg" id="statsArea"></div></div>
     </div>
   </main>
 </div>
 
 <script>
-// ========== STATE ==========
-function loadState() {
-  return JSON.parse(localStorage.getItem('golfState') || 'null') || {
-    tournament:'Golf Turnier', course:'Golfplatz', currentRound:1,
-    users:{},   // {username:{name,handicap,passwordHash,isAdmin}}
-    scores:{},  // {username:{round:[s1..s18]}}
-    holes: Array.from({length:18},(_,i)=>({number:i+1,par:[4,4,3,5,4,4,3,5,4,4,4,3,5,4,4,3,5,4][i]}))
-  };
-}
-let S = loadState();
-let currentUser = localStorage.getItem('golfUser') || null;
+const API = '';
+let session = JSON.parse(localStorage.getItem('golfSession')||'null');
+let pubData = null;
 
-function saveState(){ localStorage.setItem('golfState',JSON.stringify(S)); }
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h.toString(16);}
 
-// simple hash
-function hash(s){ let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;} return h.toString(16); }
-
-// ========== AUTH ==========
-function switchAuthTab(tab, btn){
-  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
+// ---- AUTH ----
+function authTab(t,btn){
+  document.querySelectorAll('.at').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
-  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+  document.getElementById('loginF').style.display=t==='login'?'block':'none';
+  document.getElementById('registerF').style.display=t==='register'?'block':'none';
 }
 
-function doLogin(){
-  const u = document.getElementById('loginUser').value.trim().toLowerCase();
-  const p = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
+async function doLogin(){
+  const u=document.getElementById('lUser').value.trim();
+  const p=document.getElementById('lPass').value;
+  const err=document.getElementById('lErr');
   err.classList.remove('show');
-  if(!u||!p){ err.textContent='Bitte alle Felder ausf&#252;llen!'; err.classList.add('show'); return; }
-  const user = S.users[u];
-  if(!user || user.passwordHash !== hash(p)){ err.textContent='Falscher Benutzername oder Passwort!'; err.classList.add('show'); return; }
-  currentUser = u;
-  localStorage.setItem('golfUser', u);
-  showApp();
+  if(!u||!p){err.textContent='Bitte alle Felder ausfüllen!';err.classList.add('show');return;}
+  try{
+    const r=await fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d=await r.json();
+    if(!r.ok){err.textContent=d.error||'Fehler';err.classList.add('show');return;}
+    session={username:d.username,name:d.name,isAdmin:d.isAdmin,ph:hash(p)};
+    localStorage.setItem('golfSession',JSON.stringify(session));
+    startApp();
+  }catch(e){err.textContent='Verbindungsfehler. Versuche es erneut.';err.classList.add('show');}
 }
 
-function doRegister(){
-  const u = document.getElementById('regUser').value.trim().toLowerCase();
-  const n = document.getElementById('regName').value.trim();
-  const hcp = parseFloat(document.getElementById('regHcp').value)||0;
-  const p = document.getElementById('regPass').value;
-  const p2 = document.getElementById('regPass2').value;
-  const err = document.getElementById('regError');
-  const suc = document.getElementById('regSuccess');
-  err.classList.remove('show'); suc.classList.remove('show');
-  if(!u||!n||!p){ err.textContent='Bitte alle Felder ausf&#252;llen!'; err.classList.add('show'); return; }
-  if(u.length<3){ err.textContent='Benutzername mind. 3 Zeichen!'; err.classList.add('show'); return; }
-  if(p.length<4){ err.textContent='Passwort mind. 4 Zeichen!'; err.classList.add('show'); return; }
-  if(p!==p2){ err.textContent='Passw&#246;rter stimmen nicht &#252;berein!'; err.classList.add('show'); return; }
-  if(S.users[u]){ err.textContent='Benutzername bereits vergeben!'; err.classList.add('show'); return; }
-  const isFirstUser = Object.keys(S.users).length === 0;
-  S.users[u] = { name:n, handicap:hcp, passwordHash:hash(p), isAdmin:isFirstUser };
-  saveState();
-  suc.classList.add('show');
-  document.getElementById('regUser').value='';
-  document.getElementById('regName').value='';
-  document.getElementById('regHcp').value='';
-  document.getElementById('regPass').value='';
-  document.getElementById('regPass2').value='';
-  if(isFirstUser){ suc.textContent='&#10003; Konto erstellt! Du bist der erste Nutzer und damit Admin. Bitte einloggen.'; }
+async function doRegister(){
+  const u=document.getElementById('rUser').value.trim().toLowerCase();
+  const n=document.getElementById('rName').value.trim();
+  const hcp=document.getElementById('rHcp').value;
+  const p=document.getElementById('rPass').value;
+  const p2=document.getElementById('rPass2').value;
+  const err=document.getElementById('rErr'),ok=document.getElementById('rOk');
+  err.classList.remove('show');ok.classList.remove('show');
+  if(!u||!n||!p){err.textContent='Bitte alle Felder ausfüllen!';err.classList.add('show');return;}
+  if(p!==p2){err.textContent='Passwörter stimmen nicht überein!';err.classList.add('show');return;}
+  try{
+    const r=await fetch(API+'/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,name:n,handicap:hcp,password:p})});
+    const d=await r.json();
+    if(!r.ok){err.textContent=d.error||'Fehler';err.classList.add('show');return;}
+    ok.textContent=d.isAdmin?'Konto erstellt! Du bist der erste Nutzer = Admin. Jetzt einloggen.':'Konto erstellt! Bitte einloggen.';
+    ok.classList.add('show');
+    ['rUser','rName','rHcp','rPass','rPass2'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){err.textContent='Verbindungsfehler.';err.classList.add('show');}
 }
 
 function doLogout(){
-  currentUser = null;
-  localStorage.removeItem('golfUser');
+  session=null;localStorage.removeItem('golfSession');
   document.getElementById('appScreen').style.display='none';
   document.getElementById('authScreen').style.display='block';
 }
 
-function showApp(){
-  S = loadState();
+// ---- APP ----
+function startApp(){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('appScreen').style.display='block';
-  const u = S.users[currentUser];
-  document.getElementById('userNameDisplay').textContent = u ? '&#128100; ' + u.name : currentUser;
-  const adminBtn = document.getElementById('adminNavBtn');
-  adminBtn.style.display = (u && u.isAdmin) ? 'block' : 'none';
-  showPage('leaderboard', document.querySelector('nav button'));
+  document.getElementById('uDisplay').textContent='👤 '+session.name;
+  document.getElementById('admBtn').style.display=session.isAdmin?'block':'none';
+  loadPublic();
 }
 
-// ========== NAVIGATION ==========
-function showPage(name, btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  btn.classList.add('active');
-  if(name==='leaderboard') renderLeaderboard();
-  if(name==='myscore') renderMyScore();
-  if(name==='admin') renderAdmin();
-  if(name==='stats') renderStats();
+async function loadPublic(){
+  try{
+    const r=await fetch(API+'/api/public');
+    pubData=await r.json();
+    renderLB();
+  }catch(e){console.error('load error',e);}
 }
 
-// ========== LEADERBOARD ==========
-function getTotalPar(){ return S.holes.reduce((a,h)=>a+h.par,0); }
-
-function getTotal(username, round){
-  if(!S.scores[username]||!S.scores[username][round]) return 0;
-  return S.scores[username][round].reduce((a,b)=>a+b,0);
-}
-
-function renderLeaderboard(){
-  S = loadState();
-  const container = document.getElementById('lbContent');
-  document.getElementById('roundBadge').textContent = 'Runde '+S.currentRound;
-  const totalPar = getTotalPar();
-  const rows = Object.entries(S.users).map(([u,info])=>{
-    const total = getTotal(u, S.currentRound);
-    const hp = S.scores[u]&&S.scores[u][S.currentRound] ? S.scores[u][S.currentRound].filter(s=>s>0).length : 0;
-    return { name:info.name, handicap:info.handicap, total, hp, diff:total-totalPar };
-  }).filter(r=>r.hp>0).sort((a,b)=>a.total-b.total);
-
-  if(!rows.length){ container.innerHTML='<div class="empty"><div class="icon">&#9971;</div><p>Noch keine Scores eingetragen.</p></div>'; return; }
-  const T=['&#129351;','&#129352;','&#129353;'], RC=['gold','silver','bronze'];
-  container.innerHTML='<table class="lb-table"><thead><tr><th>Platz</th><th>Spieler</th><th>Score</th><th>+/-</th><th>L&#246;cher</th><th>HCP</th></tr></thead><tbody>'+
+// ---- LEADERBOARD ----
+function renderLB(){
+  const el=document.getElementById('lbArea');
+  if(!pubData){el.innerHTML='<div class="empty"><div class="ei">&#9971;</div><p>Lade...</p></div>';return;}
+  document.getElementById('rndBadge').textContent='Runde '+pubData.currentRound;
+  const tp=pubData.holes.reduce((a,h)=>a+h.par,0);
+  const rows=[...pubData.leaderboard].filter(r=>r.holesPlayed>0).sort((a,b)=>a.total-b.total);
+  if(!rows.length){el.innerHTML='<div class="empty"><div class="ei">&#9971;</div><p>Noch keine Scores.</p></div>';return;}
+  const T=['&#129351;','&#129352;','&#129353;'],RC=['gold','silver','bronze'];
+  el.innerHTML='<table class="lb-table"><thead><tr><th>Platz</th><th>Spieler</th><th>Score</th><th>+/-</th><th>Löcher</th><th>HCP</th></tr></thead><tbody>'+
     rows.map((r,i)=>{
-      const ds = r.diff===0?'E':(r.diff>0?'+'+r.diff:''+r.diff);
-      const dc = r.diff<0?'score-under':r.diff>0?'score-over':'score-even';
-      const ri = i<3?T[i]:(i+1)+'.'; const rk=i<3?RC[i]:'';
-      return '<tr><td><span class="rank '+rk+'">'+ri+'</span></td><td><strong>'+r.name+'</strong></td><td>'+r.total+'</td><td><span class="'+dc+'">'+ds+'</span></td><td>'+r.hp+'/18<div class="progress-wrap"><div class="progress-bar" style="width:'+(r.hp/18*100).toFixed(0)+'%"></div></div></td><td>'+r.handicap+'</td></tr>';
+      const diff=r.total-tp;
+      const ds=diff===0?'E':(diff>0?'+'+diff:''+diff);
+      const dc=diff<0?'su':diff>0?'so':'se';
+      const ri=i<3?T[i]:(i+1)+'.';const rk=i<3?RC[i]:'';
+      const me=session&&r.username===session.username?' (Du)':'';
+      return '<tr><td><span class="rank '+rk+'">'+ri+'</span></td><td><strong>'+r.name+me+'</strong></td><td>'+r.total+'</td><td><span class="'+dc+'">'+ds+'</span></td><td>'+r.holesPlayed+'/18<div class="pw"><div class="pb" style="width:'+(r.holesPlayed/18*100).toFixed(0)+'%"></div></div></td><td>'+r.handicap+'</td></tr>';
     }).join('')+'</tbody></table>';
 }
 
-// ========== MY SCORE ==========
-function renderMyScore(){
-  S = loadState();
-  renderHoleInputs();
+// ---- MY SCORE ----
+async function renderMyScore(){
+  if(!pubData) await loadPublic();
+  const c=document.getElementById('myHoles');
+  const rnd=document.getElementById('myRound').value;
+  c.innerHTML=pubData.holes.map(h=>'<div class="sc"><label>L'+h.number+' P'+h.par+'</label><input type="number" id="hi'+h.number+'" min="1" max="15" oninput="ch('+h.number+','+h.par+')" /></div>').join('');
+  try{
+    const r=await fetch(API+'/api/scores/'+session.username);
+    const d=await r.json();
+    const sc=d.scores&&d.scores[rnd];
+    if(sc) sc.forEach((v,i)=>{if(v>0){const inp=document.getElementById('hi'+(i+1));if(inp){inp.value=v;ch(i+1,pubData.holes[i].par);}}});
+  }catch(e){}
 }
 
-function renderHoleInputs(){
-  const c = document.getElementById('holeInputs');
-  c.innerHTML = S.holes.map(h=>'<div class="score-cell"><label>L'+h.number+' P'+h.par+'</label><input type="number" id="hi'+h.number+'" min="1" max="15" oninput="colorHole('+h.number+','+h.par+')" /></div>').join('');
-  const rnd = document.getElementById('scoreRound').value;
-  if(currentUser && S.scores[currentUser] && S.scores[currentUser][rnd]){
-    S.scores[currentUser][rnd].forEach((s,i)=>{ if(s>0){const inp=document.getElementById('hi'+(i+1));if(inp){inp.value=s;colorHole(i+1,S.holes[i].par);}} });
-  }
-}
-
-function colorHole(n,par){
+function ch(n,par){
   const inp=document.getElementById('hi'+n);
-  if(!inp||!inp.value) return;
-  const v=parseInt(inp.value); inp.className='';
-  if(v<=par-2) inp.classList.add('eagle');
-  else if(v===par-1) inp.classList.add('birdie');
-  else if(v===par+1) inp.classList.add('bogey');
-  else if(v>=par+2) inp.classList.add('dbl');
+  if(!inp||!inp.value)return;
+  const v=parseInt(inp.value);inp.className='';
+  if(v<=par-2)inp.classList.add('eagle');
+  else if(v===par-1)inp.classList.add('birdie');
+  else if(v===par+1)inp.classList.add('bogey');
+  else if(v>=par+2)inp.classList.add('dbl');
 }
 
-function saveMyScore(){
-  if(!currentUser){doLogout();return;}
-  const rnd = document.getElementById('scoreRound').value;
-  const sc=[];
-  for(let i=1;i<=18;i++){const inp=document.getElementById('hi'+i);sc.push(inp&&inp.value?parseInt(inp.value):0);}
-  if(!S.scores[currentUser]) S.scores[currentUser]={};
-  S.scores[currentUser][rnd]=sc;
-  saveState();
-  const al=document.getElementById('scoreAlert');
-  al.classList.add('show');
-  setTimeout(()=>al.classList.remove('show'),3000);
+function clearHoles(){document.getElementById('myRound').dispatchEvent(new Event('change'));}
+
+async function saveMyScore(){
+  const rnd=document.getElementById('myRound').value;
+  const scores=[];
+  for(let i=1;i<=18;i++){const inp=document.getElementById('hi'+i);scores.push(inp&&inp.value?parseInt(inp.value):0);}
+  try{
+    const r=await fetch(API+'/api/scores/'+session.username,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({round:rnd,scores,passwordHash:session.ph})});
+    if(r.ok){
+      const al=document.getElementById('myAlert');al.classList.add('show');
+      setTimeout(()=>al.classList.remove('show'),3000);
+      await loadPublic();
+    }
+  }catch(e){}
 }
 
-function clearMyScore(){
-  renderHoleInputs();
+// ---- ADMIN ----
+async function renderAdm(){
+  if(!pubData) await loadPublic();
+  document.getElementById('aTour').value=pubData.tournament||'';
+  document.getElementById('aCourse').value=pubData.course||'';
+  document.getElementById('aRound').value=pubData.currentRound||1;
+  document.getElementById('admHoles').innerHTML=pubData.holes.map(h=>'<div class="hc"><h3>Loch '+h.number+'</h3>Par <input type="number" id="p'+h.number+'" value="'+h.par+'" min="3" max="5" style="width:46px;border:1px solid #ccc;border-radius:5px;text-align:center" oninput="updP()"/></div>').join('');
+  updP();
+  try{
+    const r=await fetch(API+'/api/admin/users?username='+encodeURIComponent(session.username)+'&passwordHash='+encodeURIComponent(session.ph));
+    const d=await r.json();
+    document.getElementById('admCount').textContent=(d.users||[]).length+' Spieler';
+    document.getElementById('admPlayers').innerHTML=(d.users||[]).map(u=>'<div class="pi"><div><div class="pn">'+u.name+(u.isAdmin?' &#9881;':'')+'</div><div class="ps">@'+u.username+' | HCP: '+u.handicap+'</div></div></div>').join('')||'<div class="empty"><p>Keine Spieler.</p></div>';
+  }catch(e){}
 }
 
-document.addEventListener('change',function(e){if(e.target&&e.target.id==='scoreRound')renderHoleInputs();});
+function updP(){let t=0;for(let i=1;i<=18;i++){const inp=document.getElementById('p'+i);if(inp)t+=parseInt(inp.value)||0;}document.getElementById('totPar').textContent=t;}
 
-// ========== ADMIN ==========
-function renderAdmin(){
-  S = loadState();
-  document.getElementById('adminTournament').value = S.tournament||'';
-  document.getElementById('adminCourse').value = S.course||'';
-  document.getElementById('adminRound').value = S.currentRound;
-  // holes
-  document.getElementById('holeSetup').innerHTML = S.holes.map(h=>
-    '<div class="hole-card"><h3>Loch '+h.number+'</h3><div>Par <input type="number" id="par'+h.number+'" value="'+h.par+'" min="3" max="5" style="width:48px;border:1px solid #ccc;border-radius:5px;text-align:center" oninput="updPar()"/></div></div>'
-  ).join('');
-  updPar();
-  // players list
-  const list = document.getElementById('adminPlayersList');
-  const entries = Object.entries(S.users);
-  document.getElementById('playerCount').textContent = entries.length + ' Spieler';
-  if(!entries.length){ list.innerHTML='<div class="empty"><p>Keine Spieler registriert.</p></div>'; return; }
-  list.innerHTML = entries.map(([u,info])=>{
-    const total = getTotal(u, S.currentRound);
-    const isAdmin = info.isAdmin ? ' &#9881;Admin' : '';
-    return '<div class="p-item"><div class="p-info"><div class="name">'+info.name+isAdmin+'</div><div class="sub">@'+u+' | HCP: '+info.handicap+'</div></div><div><span class="pill">'+(total>0?total+' Pkt':'Kein Score')+'</span></div></div>';
-  }).join('');
+async function saveAdm(){
+  const holes=pubData.holes.map((h,i)=>{const inp=document.getElementById('p'+(i+1));return{...h,par:inp?parseInt(inp.value)||4:h.par};});
+  try{
+    const r=await fetch(API+'/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:session.username,passwordHash:session.ph,tournament:document.getElementById('aTour').value.trim(),course:document.getElementById('aCourse').value.trim(),currentRound:document.getElementById('aRound').value})});
+    if(r.ok){await loadPublic();alert('Einstellungen gespeichert!');}
+  }catch(e){}
 }
 
-function saveAdminSettings(){
-  S.tournament = document.getElementById('adminTournament').value.trim()||'Golf Turnier';
-  S.course = document.getElementById('adminCourse').value.trim()||'Golfplatz';
-  S.currentRound = parseInt(document.getElementById('adminRound').value)||1;
-  saveState();
-  alert('Einstellungen gespeichert!');
+async function savePar(){
+  const holes=pubData.holes.map((h,i)=>{const inp=document.getElementById('p'+(i+1));return{...h,par:inp?parseInt(inp.value)||4:h.par};});
+  try{
+    const r=await fetch(API+'/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:session.username,passwordHash:session.ph,holes})});
+    if(r.ok){await loadPublic();alert('Par gespeichert!');}
+  }catch(e){}
 }
 
-function updPar(){
-  let t=0;
-  for(let i=1;i<=18;i++){const inp=document.getElementById('par'+i);if(inp)t+=parseInt(inp.value)||0;}
-  document.getElementById('totalPar').textContent=t;
+// ---- STATS ----
+async function renderStats(){
+  if(!pubData) await loadPublic();
+  const tp=pubData.holes.reduce((a,h)=>a+h.par,0);
+  let e=0,b=0,bog=0,best=null;
+  for(const row of pubData.leaderboard){
+    try{
+      const r=await fetch(API+'/api/scores/'+row.username);
+      const d=await r.json();
+      const sc=d.scores&&d.scores[pubData.currentRound];
+      if(!sc)continue;
+      sc.forEach((s,i)=>{if(s<=0)return;const par=pubData.holes[i].par;if(s<=par-2)e++;else if(s===par-1)b++;else if(s>=par+1)bog++;});
+    }catch(err){}
+    if(row.total>0&&(!best||row.total<best.t))best={name:row.name,t:row.total};
+  }
+  const items=[{l:'Spieler',v:pubData.leaderboard.length,i:'&#128100;'},{l:'Total Par',v:tp,i:'&#9968;'},{l:'Eagles',v:e,i:'&#129413;'},{l:'Birdies',v:b,i:'&#128038;'},{l:'Bogeys',v:bog,i:'&#128549;'},{l:'Führend',v:best?best.name:'-',i:'&#129351;'}];
+  document.getElementById('statsArea').innerHTML=items.map(it=>'<div class="scard"><div class="sv">'+it.i+'</div><div class="sv" style="font-size:1.2rem">'+it.v+'</div><div class="sl">'+it.l+'</div></div>').join('');
 }
 
-function saveHoles(){
-  for(let i=0;i<18;i++){const p=document.getElementById('par'+(i+1));if(p)S.holes[i].par=parseInt(p.value)||4;}
-  saveState(); alert('Par gespeichert!');
+// ---- NAVIGATION ----
+function showPage(n,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  btn.classList.add('active');
+  if(n==='lb'){loadPublic();}
+  if(n==='my'){renderMyScore();}
+  if(n==='adm'){renderAdm();}
+  if(n==='stats'){renderStats();}
 }
 
-function resetAll(){
-  if(!confirm('WIRKLICH alle Scores und Spieler loeschen?')) return;
-  S.scores={}; S.users={}; S.currentRound=1;
-  saveState(); doLogout();
-}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='myRound')renderMyScore();});
 
-// ========== STATS ==========
-function renderStats(){
-  S = loadState();
-  const totalPar=getTotalPar(); let eagles=0,birdies=0,bogeys=0,best=null;
-  Object.entries(S.scores).forEach(([u,rounds])=>{
-    const sc=rounds[S.currentRound]; if(!sc) return;
-    sc.forEach((s,i)=>{if(s<=0)return;const par=S.holes[i].par;if(s<=par-2)eagles++;else if(s===par-1)birdies++;else if(s>=par+1)bogeys++;});
-    const t=getTotal(u,S.currentRound);
-    if(t>0&&(!best||t<best.t)) best={name:S.users[u]&&S.users[u].name||u,t};
-  });
-  const items=[
-    {l:'Spieler',v:Object.keys(S.users).length,i:'&#128100;'},
-    {l:'Total Par',v:totalPar,i:'&#9968;'},
-    {l:'Eagles',v:eagles,i:'&#129413;'},
-    {l:'Birdies',v:birdies,i:'&#128038;'},
-    {l:'Bogeys',v:bogeys,i:'&#128549;'},
-    {l:'F&#252;hrender',v:best?best.name:'-',i:'&#129351;'}
-  ];
-  document.getElementById('statsGrid').innerHTML=items.map(it=>'<div class="stat-card"><div class="sv">'+it.i+'</div><div class="sv" style="font-size:1.3rem">'+it.v+'</div><div class="sl">'+it.l+'</div></div>').join('');
-}
+// ---- AUTO-REFRESH ----
+setInterval(()=>{if(session&&document.getElementById('page-lb').classList.contains('active'))loadPublic();},30000);
 
-// ========== INIT ==========
-if(currentUser && S.users[currentUser]){
-  showApp();
-} else {
-  currentUser=null; localStorage.removeItem('golfUser');
-}
+// ---- INIT ----
+if(session){startApp();}
 </script>
 </body>
 </html>
