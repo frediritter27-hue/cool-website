@@ -13,6 +13,7 @@ Coords (mm):  X heel<->toe,  Y face(0)->back,  Z sole(0)->crown.
 """
 import numpy as np
 import shapely.geometry as sg
+import shapely.affinity as sa
 from shapely.ops import unary_union
 import trimesh
 from trimesh.creation import extrude_polygon, cylinder, triangulate_polygon
@@ -130,34 +131,36 @@ cutter.apply_translation((0, -30 + FACE_Y, H/2))
 cutter.apply_transform(trimesh.transformations.rotation_matrix(loft, (1,0,0), (0,0,0)))
 body = body.difference(cutter)
 
-# ---------------- CROWN styling (the look from the photo, on the visible side) ----------------
+# ---------------- SOLE styling (discs + bar + Circle-F, exactly as in the photo) ----------------
 fy, by = 0.27*D, 0.76*D          # front / back disc centres
 def add_disc(mesh, cy):
     r_rec, r_disc = 18.0, 14.0
-    mesh = mesh.difference(solid(circ(0, cy, r_rec), H-3.5, H+2))
-    mesh = mesh.union(solid(circ(0, cy, r_disc), H-3.5, H))
-    holes = unary_union([circ(8.5*np.cos(a), 0, 1.1).buffer(0) for a in []])
-    hs = [circ(0+8.5*np.cos(k*np.pi/3), cy+8.5*np.sin(k*np.pi/3), 1.1) for k in range(6)]
-    mesh = mesh.difference(solid(unary_union(hs), H-1.8, H+2))
+    mesh = mesh.difference(solid(circ(0, cy, r_rec), -2, 3.5))   # ring recess in the sole
+    mesh = mesh.union(solid(circ(0, cy, r_disc), 0, 3.5))        # disc flush with the sole
+    hs = [circ(8.5*np.cos(k*np.pi/3), cy+8.5*np.sin(k*np.pi/3), 1.1) for k in range(6)]
+    mesh = mesh.difference(solid(unary_union(hs), -2, 1.8))      # cosmetic milled holes
     return mesh
 body = add_disc(body, fy)
 body = add_disc(body, by)
 
-# central bar channel between the discs
+# central bar channel between the discs (recessed into the sole)
 bar = sg.box(-13, fy, 13, by).buffer(3, join_style=1)
-body = body.difference(solid(bar, H-2.2, H+2))
+body = body.difference(solid(bar, -2, 2.2))
 
-# single sight line near the face
-body = body.difference(solid(sg.box(-0.8, FACE_Y+2, 0.8, fy-16), H-2.6, H+2))
-
-# ---------------- Circle-F logo on the bar ----------------
+# ---------------- Circle-F logo engraved on the sole bar ----------------
+# mirrored in x so it reads correctly when the sole is viewed from below
 def circle_f(cx, cy):
     ring = circ(cx, cy, 8.6).difference(circ(cx, cy, 6.9))
     stem = sg.box(cx-2.8, cy-4.6, cx-1.0, cy+4.6)
     top  = sg.box(cx-2.8, cy-4.6, cx+3.2, cy-2.8)
     mid  = sg.box(cx-2.8, cy-0.9, cx+1.8, cy+0.9)
-    return unary_union([ring, stem, top, mid])
-body = body.difference(solid(circle_f(0, 0.5*D), H-2.2-1.3, H+2))
+    f = unary_union([ring, stem, top, mid])
+    return sa.scale(f, xfact=-1, origin=(cx, cy))
+# engrave 1.4 mm deeper than the 2.2 mm bar floor so it stands out (paint-fill it red)
+body = body.difference(solid(circle_f(0, 0.5*D), -2, 3.6))
+
+# ---------------- CROWN: clean, single sight line ----------------
+body = body.difference(solid(sg.box(-0.8, FACE_Y+2, 0.8, 0.34*D), H-2.0, H+2))
 
 # ---------------- shaft bore (single bend, ~lie) ----------------
 horiz = (H + 10) / np.tan(np.radians(LIE_DEG))

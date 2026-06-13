@@ -25,9 +25,9 @@ This is an **original, trademark-free model**:
 
 | Spec | Value |
 |------|-------|
-| Width (heel ↔ toe) | **112 mm** |
-| Depth (face ↔ back) | **112 mm** |
-| Height (sole ↔ crown) | **33 mm** |
+| Width (heel ↔ toe) | **109 mm** (traced from the photo) |
+| Depth (face ↔ back) | **~109 mm** (traced) |
+| Height (sole ↔ crown) | **35 mm** (estimated) |
 | Loft | 3.5° |
 | Lie | 70° |
 | Shaft bore | Ø 9.7 mm (fits a 0.370" / 9.4 mm parallel-tip putter shaft + glue gap) |
@@ -47,25 +47,23 @@ The silhouette is **traced from the reference photo**, not guessed:
 `seg_overlay.png` shows the trace on the photo; `foot_mm.png` shows the final
 outline; `v2_views.png` shows the 3D result.
 
-### Accuracy note (please read)
+### Accuracy note
 
-The width (109 mm) is solid. Two things are **estimated** because they can't be
-read from a single top/sole photo taken at an angle:
-
-- **Height / side profile / loft shape** — needs a face-on and a heel/toe photo.
-- **Exact depth** — the photo's tilt slightly foreshortens it.
-
-Send a straight-down crown photo, a straight-down sole photo, a face-on photo,
-and a heel-or-toe profile photo (ideally on a plain background, no hand) and the
-model can be pushed to true 1:1. All dimensions are parameters at the top of
-`build_putter.py` (`H`, `R_CROWN`, `LOFT_DEG`, `LIE_DEG`, …) — tweak and re-run.
+The **width (109 mm)** and the **silhouette** are traced from the photo and are
+reliable. The **height (35 mm), loft (3.5°) and side profile** are sensible
+estimates — they can't be read from a single top/sole view. If you ever want
+true 1:1 on those, measure your real head (or shoot a face-on + heel/toe photo)
+and edit the parameters at the top of `build_putter.py` (`H`, `R_CROWN`,
+`LOFT_DEG`, `LIE_DEG`, `FACE_Y`, …), then re-run.
 
 ## Design features (these are what "help you putt better")
 
 - **Open, perimeter-weighted frame** — two through-windows push mass to the
   edges for **high MOI** (more forgiving on off-centre hits).
-- **Two milled alignment/weight discs** (front & back) on the centre line.
-- **Single sight line** on the front flange for clean aim.
+- **Clean crown** with a **single sight line** for clean aim.
+- **Two milled alignment/weight discs + central bar + Circle-F** on the **sole**
+  (faithful to the reference photo). Paint-fill the Circle-F red for contrast.
+- **Rounded crown & sole edges** (lofted), so it looks like a milled head.
 - **Rear weight pockets** (two Ø12 mm blind holes in the sole) — see below.
 
 ## Printing in Bambu Studio
