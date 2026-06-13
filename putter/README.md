@@ -32,10 +32,33 @@ This is an **original, trademark-free model**:
 | Lie | 70° |
 | Shaft bore | Ø 9.7 mm (fits a 0.370" / 9.4 mm parallel-tip putter shaft + glue gap) |
 
-Scotty Cameron does **not** publish exact head footprint dimensions, so the
-width/depth/height above are well-reasoned mallet values measured to match the
-Phantom 9's look. They live at the top of `build_putter.py` as `W`, `D`, `H` —
-change them if you measure a real one and want to get closer.
+### How the shape was made (v2)
+
+The silhouette is **traced from the reference photo**, not guessed:
+
+1. `trace_head.py` segments the head from the green background.
+2. `trace_clean.py` rotates it upright, removes the hand/shaft, and mirrors the
+   clean half (the head is symmetric) → `clean_contour.npy`.
+3. `build_footprint.py` smooths + scales it to millimetres → `foot_mm.npy`.
+4. `build_putter.py` lofts that outline into a solid with **rounded crown and
+   sole edges** (so it looks like a milled head, not a slab) and adds the
+   discs, central bar, sight line, Circle-F, shaft bore and weight pockets.
+
+`seg_overlay.png` shows the trace on the photo; `foot_mm.png` shows the final
+outline; `v2_views.png` shows the 3D result.
+
+### Accuracy note (please read)
+
+The width (109 mm) is solid. Two things are **estimated** because they can't be
+read from a single top/sole photo taken at an angle:
+
+- **Height / side profile / loft shape** — needs a face-on and a heel/toe photo.
+- **Exact depth** — the photo's tilt slightly foreshortens it.
+
+Send a straight-down crown photo, a straight-down sole photo, a face-on photo,
+and a heel-or-toe profile photo (ideally on a plain background, no hand) and the
+model can be pushed to true 1:1. All dimensions are parameters at the top of
+`build_putter.py` (`H`, `R_CROWN`, `LOFT_DEG`, `LIE_DEG`, …) — tweak and re-run.
 
 ## Design features (these are what "help you putt better")
 
