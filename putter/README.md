@@ -28,7 +28,8 @@ neck**. High perimeter weighting = a forgiving, stable putter.
   what makes it high-MOI / forgiving.
 - **Winged / fang body** with a shallow rear notch (squared corners, not spikes).
 - **Central spine** with a single **sight line** on the crown.
-- **Flowing heel neck** with a Ø9.7 mm shaft bore at 70° lie.
+- **Head only — no shaft / neck** (removed on request). Tell me where you want a
+  shaft bore and I'll add it.
 - **Sole:** two milled discs + central bar + engraved **Circle-F** (paint-fill
   it red), faithful to the owner's photo. The F is mirrored so it reads
   correctly when you look at the sole.
@@ -40,9 +41,8 @@ neck**. High perimeter weighting = a forgiving, stable putter.
 |------|-------|
 | Width (heel↔toe) | ~122 mm |
 | Depth (face↔back) | ~118 mm |
-| Height (sole↔crown) | 34 mm (22 mm at the face) |
-| Loft / Lie | 3.5° / 70° |
-| Shaft bore | Ø 9.7 mm (0.370" parallel-tip shaft + glue gap) |
+| Height (sole↔crown) | 34 mm back, 29 mm at the face |
+| Loft | 3.5° |
 
 The shape is built **parametrically** to match the photos (it is not a CAD copy
 of the real head). The silhouette is an editable list of points (`half`) at the
@@ -53,8 +53,7 @@ neck, …) is a variable — measure your real head and tweak to taste.
 
 1. Drag the STL onto the plate. Orientation: **crown up / sole on the bed**.
 2. PLA (or PETG for durability), 0.16 mm layers, 4+ walls.
-3. Supports: **on** (tree/auto) — the neck and the underside of the wing frames
-   around the windows have overhangs.
+3. Supports: light tree/auto for the window undersides; otherwise minimal.
 4. Paint-fill the **sight line** and **Circle-F** for contrast.
 
 ### Weight
@@ -62,11 +61,6 @@ neck, …) is a variable — measure your real head and tweak to taste.
 Solid PLA ≈ 210 g; at 30 % infill ≈ 65 g (too light). Print at high infill
 and/or pack the two **rear sole pockets** with steel/lead/tungsten + epoxy to
 reach a real ~340–360 g putting weight (this also boosts MOI).
-
-## Assembly
-
-Epoxy a cut-to-length **0.370" parallel-tip putter shaft** into the neck bore,
-add tip weights / fill the pockets to your target weight, then glue on a grip.
 
 ## Regenerate
 

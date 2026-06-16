@@ -22,14 +22,14 @@ import trimesh.boolean as tb
 # ---------------- master parameters ----------------
 D      = 118.0      # depth face->back
 H      = 34.0       # crown height at the back
-H_FACE = 22.0       # crown height at the face (crown slopes up to the back)
+H_FACE = 29.0       # crown height at the face (crown slopes gently up to the back)
 R_CR   = 4.0        # crown edge round
 R_SO   = 2.0        # sole edge round
 WFACE  = 86.0       # face width
 LOFT_DEG = 3.5
 LIE_DEG  = 70.0
 SHAFT_DIA = 9.7
-ARC = 64
+ARC = 96
 
 def circ(cx, cy, r): return sg.Point(cx, cy).buffer(r, quad_segs=ARC)
 def rr(cx, cy, w, h, r):
@@ -93,10 +93,12 @@ body.merge_vertices(); body.fix_normals()
 print("body watertight:", body.is_watertight)
 
 # ---------------- crown slope (face lower than back) ----------------
+# cutting plane rises from z=H_FACE at the face (y=0) to z=H at the back (y=D);
+# everything above it is removed, so the crown slopes up toward the back.
 slope = np.arctan2(H - H_FACE, D)
 cut = trimesh.creation.box(extents=(W+80, D+120, 60))
-cut.apply_translation((0, D/2, 30 + H_FACE))     # bottom plane at z=H_FACE at face
-cut.apply_transform(trimesh.transformations.rotation_matrix(-slope, (1,0,0), (0,0,H_FACE)))
+cut.apply_translation((0, D/2, 30 + H_FACE))     # bottom face flat at z=H_FACE
+cut.apply_transform(trimesh.transformations.rotation_matrix(slope, (1,0,0), (0,0,H_FACE)))
 body = body.difference(cut)
 
 # ---------------- FACE loft ----------------
@@ -135,19 +137,6 @@ def circle_f(cx, cy):
     mid  = sg.box(cx-2.7, cy-0.8, cx+1.7, cy+0.8)
     return sa.scale(unary_union([ring, stem, top, mid]), xfact=-1, origin=(cx, cy))
 body = body.difference(slab(circle_f(0, 0.5*D), -5, 3.4))
-
-# ---------------- NECK + shaft bore (flowing neck off the front-heel) ----------------
-ndir = np.array([np.sin(np.radians(90-LIE_DEG)), 0, np.cos(np.radians(90-LIE_DEG))])  # leans to heel(+x)
-nbase = np.array([38.0, 13.0, 16.0])                 # inside the head at the front-heel
-ntop  = nbase + ndir*40.0
-neck = cylinder(radius=6.2, segment=(nbase, ntop), sections=ARC)
-cap  = trimesh.creation.icosphere(subdivisions=2, radius=6.2); cap.apply_translation(ntop)
-# a small fillet boss where the neck meets the crown
-boss = trimesh.creation.icosphere(subdivisions=2, radius=9.0); boss.apply_translation(nbase + ndir*4)
-body = tb.union([body, neck, cap, boss])
-# bore for the shaft
-b0 = ntop + ndir*3.0; b1 = nbase - ndir*8.0
-body = body.difference(cylinder(radius=SHAFT_DIA/2, segment=(b0, b1), sections=ARC))
 
 # ---------------- rear weight pockets ----------------
 for sx in (-1, 1):
