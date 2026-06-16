@@ -1,186 +1,165 @@
 #!/usr/bin/env python3
 """
-Putter head generator v2  -  "Phantom-style 9", Circle-F edition
-================================================================
-Now built from the REAL silhouette traced from the reference photo
-(foot_mm.npy) instead of a guessed rounded square, and lofted with
-rounded crown + sole edges so it reads like a real milled head, not a slab.
+Putter head generator v3  -  fang-style high-MOI mallet, Circle-F edition
+=========================================================================
+Now models the DEFINING features that were missing: two large windows cut
+THROUGH the rear wings (the "gaps"), a central spine carrying the crown sight
+line, rear fang tips with a central notch, and a flowing heel neck/hosel.
 
-Trademark-free: no Scotty Cameron / Titleist / Phantom logos or text.
-The "Circle-T" mark is replaced with a custom "Circle-F" mark.
+Trademark-free: no Scotty Cameron / Titleist / Phantom logos, names or text.
+The sole "Circle-T" mark is replaced with a custom "Circle-F" mark.
 
-Coords (mm):  X heel<->toe,  Y face(0)->back,  Z sole(0)->crown.
+Coords (mm):  X heel(+)<->toe(-),  Y face(0)->back,  Z sole(0)->crown.
 """
 import numpy as np
 import shapely.geometry as sg
 import shapely.affinity as sa
 from shapely.ops import unary_union
 import trimesh
-from trimesh.creation import extrude_polygon, cylinder, triangulate_polygon
+from trimesh.creation import extrude_polygon, cylinder
+import trimesh.boolean as tb
 
-# ---------------- parameters ----------------
-H      = 35.0     # crown height at the back
-R_CROWN = 9.0     # crown edge roll radius (rounded top edge)
-R_SOLE  = 2.5     # sole edge roll radius
+# ---------------- master parameters ----------------
+D      = 118.0      # depth face->back
+H      = 34.0       # crown height at the back
+H_FACE = 22.0       # crown height at the face (crown slopes up to the back)
+R_CR   = 4.0        # crown edge round
+R_SO   = 2.0        # sole edge round
+WFACE  = 86.0       # face width
 LOFT_DEG = 3.5
 LIE_DEG  = 70.0
 SHAFT_DIA = 9.7
-FACE_Y   = 4.0    # flatten the striking face at this y
-NLAY = 90         # vertical loft layers
-ARC = 96
+ARC = 64
 
-# ---------------- base outline (real trace) ----------------
-foot = np.load("foot_mm.npy")              # (M,2) mm, face at y=0
-base_poly = sg.Polygon(foot).buffer(0)     # clean
-D = foot[:,1].max() - foot[:,1].min()
-W = foot[:,0].max() - foot[:,0].min()
-
-def resample(poly, n):
-    """Resample a polygon exterior to n points evenly by arc length."""
-    ring = np.asarray(poly.exterior.coords)[:-1]
-    seg = np.linalg.norm(np.diff(np.vstack([ring, ring[:1]]), axis=0), axis=1)
-    s = np.concatenate([[0], np.cumsum(seg)]); total = s[-1]
-    targ = np.linspace(0, total, n, endpoint=False)
-    out = np.empty((n, 2))
-    for i, t in enumerate(targ):
-        out[i] = [np.interp(t, s, np.append(ring[:,0], ring[0,0])),
-                  np.interp(t, s, np.append(ring[:,1], ring[0,1]))]
-    return out
-
-N = 220
-base_pts = resample(base_poly, N)
-# lock vertex correspondence: angular order around centroid
-cx0, cy0 = base_pts.mean(0)
-order = np.argsort(np.arctan2(base_pts[:,1]-cy0, base_pts[:,0]-cx0))
-base_pts = base_pts[order]
-
-def offset_at(z):
-    """Inward offset (negative) for the loft profile at height z."""
-    if z <= R_SOLE:
-        return -(R_SOLE - np.sqrt(max(0.0, R_SOLE**2 - (z - R_SOLE)**2)))
-    if z >= H - R_CROWN:
-        return -(R_CROWN - np.sqrt(max(0.0, R_CROWN**2 - (z - (H - R_CROWN))**2)))
-    return 0.0
-
-def offset_ring(off):
-    """Offset the base polygon inward by |off| and resample to N pts, kept ordered."""
-    if abs(off) < 1e-6:
-        return base_pts.copy()
-    p = base_poly.buffer(off, quad_segs=32, join_style=1)
-    if p.is_empty:
-        return base_pts.copy() * 0.0 + [cx0, cy0]
-    if p.geom_type == "MultiPolygon":
-        p = max(p.geoms, key=lambda g: g.area)
-    pts = resample(p, N)
-    o = np.argsort(np.arctan2(pts[:,1]-cy0, pts[:,0]-cx0))
-    return pts[o]
-
-# ---------------- build lofted mesh ----------------
-zs = np.linspace(0, H, NLAY)
-rings = [offset_ring(offset_at(z)) for z in zs]
-verts = []
-for z, ring in zip(zs, rings):
-    verts.append(np.column_stack([ring, np.full(N, z)]))
-verts = np.vstack(verts)                    # (NLAY*N, 3)
-
-faces = []
-for k in range(NLAY - 1):
-    a0 = k * N; b0 = (k + 1) * N
-    for i in range(N):
-        j = (i + 1) % N
-        faces.append([a0 + i, a0 + j, b0 + j])
-        faces.append([a0 + i, b0 + j, b0 + i])
-
-# caps via earcut triangulation of the (offset) polygon at top & bottom
-def cap(ring, zval, base_index, flip):
-    poly = sg.Polygon(ring)
-    v2, f2 = triangulate_polygon(poly, engine="earcut")
-    # map triangulated verts to nearest ring index where possible; simpler: add new verts
-    return v2, f2
-
-# bottom cap (z=0)
-vb, fb = triangulate_polygon(sg.Polygon(rings[0]), engine="earcut")
-base_b = len(verts)
-verts = np.vstack([verts, np.column_stack([vb, np.zeros(len(vb))])])
-for f in fb:
-    faces.append([base_b + f[0], base_b + f[2], base_b + f[1]])  # downward normal
-# top cap (z=H)
-vt, ft = triangulate_polygon(sg.Polygon(rings[-1]), engine="earcut")
-base_t = len(verts)
-verts = np.vstack([verts, np.column_stack([vt, np.full(len(vt), H)])])
-for f in ft:
-    faces.append([base_t + f[0], base_t + f[1], base_t + f[2]])
-
-body = trimesh.Trimesh(vertices=verts, faces=np.array(faces), process=True)
-body.merge_vertices(); body.fix_normals()
-print("lofted body watertight:", body.is_watertight, "| vol %.0f cm3"%(body.volume/1000))
-
-# ---------------- helpers for features ----------------
-def solid(poly, z0, z1):
-    polys = list(poly.geoms) if poly.geom_type == "MultiPolygon" else [poly]
-    ms = []
-    for p in polys:
-        m = extrude_polygon(p, height=z1 - z0); m.apply_translation((0,0,z0)); ms.append(m)
-    return trimesh.util.concatenate(ms) if len(ms) > 1 else ms[0]
 def circ(cx, cy, r): return sg.Point(cx, cy).buffer(r, quad_segs=ARC)
+def rr(cx, cy, w, h, r):
+    return sg.box(cx-w/2+r, cy-h/2+r, cx+w/2-r, cy+h/2-r).buffer(r, quad_segs=24, join_style=1)
 
-# ---------------- flatten + loft the FACE ----------------
+# ---------------- outer silhouette (right half, mirrored) ----------------
+# face at y=0 (front), fangs at back (y=D). Tune these points vs the photos.
+half = [
+    (0,    0),     # face centre
+    (44,   0),     # face toe corner
+    (56,   8),     # wing front shoulder (flare out)
+    (61,   32),    # widest (toe side)
+    (61,   90),    # hold the wing wide & square
+    (57,   108),
+    (48,   117),   # rounded back-toe corner (squared, not a spike)
+    (34,   118),
+    (18,   110),   # inner notch wall
+    (6,    104),
+    (0,    103),   # shallow rear-notch centre
+]
+right = np.array(half)
+left = right[::-1].copy(); left[:,0] *= -1
+outline = np.vstack([right, left[1:]])
+foot = sg.Polygon(outline).buffer(0)
+# central spine rib extends back into the notch, carrying the sight line
+spine = rr(0, 50, 24, 100, 6)
+foot = unary_union([foot, spine]).buffer(0)
+W = outline[:,0].max() - outline[:,0].min()
+print("footprint W=%.1f D=%.1f"%(W, D))
+
+# ---------------- build body with rounded top/bottom edges ----------------
+def off(p, d):
+    g = p.buffer(d, quad_segs=24, join_style=1)
+    if g.geom_type == "MultiPolygon": g = max(g.geoms, key=lambda x: x.area)
+    return g
+def slab(p, z0, z1):
+    geoms = list(p.geoms) if p.geom_type == "MultiPolygon" else [p]
+    ms = []
+    for g in geoms:
+        m = extrude_polygon(g, height=z1-z0); m.apply_translation((0,0,z0)); ms.append(m)
+    return trimesh.util.concatenate(ms) if len(ms) > 1 else ms[0]
+
+parts = []
+# sole roll
+ns = 4
+for i in range(ns):
+    z0 = R_SO*i/ns; z1 = R_SO*(i+1)/ns
+    d = -(R_SO - np.sqrt(max(0, R_SO**2 - (R_SO - z1)**2)))
+    parts.append(slab(off(foot, d), z0, z1))
+# straight middle
+parts.append(slab(foot, R_SO, H-R_CR))
+# crown roll
+nc = 6
+for i in range(nc):
+    z0 = H-R_CR + R_CR*i/nc; z1 = H-R_CR + R_CR*(i+1)/nc
+    d = -(R_CR - np.sqrt(max(0, R_CR**2 - (z1-(H-R_CR))**2)))
+    parts.append(slab(off(foot, d), z0, z1))
+
+body = tb.union(parts)
+body.merge_vertices(); body.fix_normals()
+print("body watertight:", body.is_watertight)
+
+# ---------------- crown slope (face lower than back) ----------------
+slope = np.arctan2(H - H_FACE, D)
+cut = trimesh.creation.box(extents=(W+80, D+120, 60))
+cut.apply_translation((0, D/2, 30 + H_FACE))     # bottom plane at z=H_FACE at face
+cut.apply_transform(trimesh.transformations.rotation_matrix(-slope, (1,0,0), (0,0,H_FACE)))
+body = body.difference(cut)
+
+# ---------------- FACE loft ----------------
 loft = np.radians(LOFT_DEG)
-cutter = trimesh.creation.box(extents=(W + 80, 60, H + 80))
-cutter.apply_translation((0, -30 + FACE_Y, H/2))
-cutter.apply_transform(trimesh.transformations.rotation_matrix(loft, (1,0,0), (0,0,0)))
-body = body.difference(cutter)
+fc = trimesh.creation.box(extents=(W+80, 60, H+80))
+fc.apply_translation((0, -30+3.0, H/2))
+fc.apply_transform(trimesh.transformations.rotation_matrix(loft, (1,0,0), (0,0,0)))
+body = body.difference(fc)
 
-# ---------------- SOLE styling (discs + bar + Circle-F, exactly as in the photo) ----------------
-fy, by = 0.27*D, 0.76*D          # front / back disc centres
+# ---------------- WINDOWS through the wings (the "gaps") ----------------
+def window(cx, cy, tilt):
+    w = rr(cx, cy, 30, 47, 8)
+    w = sa.rotate(w, tilt, origin=(cx, cy))
+    return slab(w, -5, H+5)
+body = body.difference(window( 35, 58, -7))
+body = body.difference(window(-35, 58,  7))
+
+# ---------------- crown sight line on the spine ----------------
+body = body.difference(slab(sg.box(-1.0, 6, 1.0, 40), H-2.0, H+5))
+
+# ---------------- SOLE: discs + bar + Circle-F (from the owner's photo) ----------------
+fy, by = 0.30*D, 0.74*D
 def add_disc(mesh, cy):
-    r_rec, r_disc = 18.0, 14.0
-    mesh = mesh.difference(solid(circ(0, cy, r_rec), -2, 3.5))   # ring recess in the sole
-    mesh = mesh.union(solid(circ(0, cy, r_disc), 0, 3.5))        # disc flush with the sole
-    hs = [circ(8.5*np.cos(k*np.pi/3), cy+8.5*np.sin(k*np.pi/3), 1.1) for k in range(6)]
-    mesh = mesh.difference(solid(unary_union(hs), -2, 1.8))      # cosmetic milled holes
+    mesh = mesh.difference(slab(circ(0, cy, 16), -5, 3.2))
+    mesh = mesh.union(slab(circ(0, cy, 12), 0, 3.2))
+    hs = [circ(7.5*np.cos(k*np.pi/3), cy+7.5*np.sin(k*np.pi/3), 1.0) for k in range(6)]
+    mesh = mesh.difference(slab(unary_union(hs), -5, 1.6))
     return mesh
 body = add_disc(body, fy)
 body = add_disc(body, by)
-
-# central bar channel between the discs (recessed into the sole)
-bar = sg.box(-13, fy, 13, by).buffer(3, join_style=1)
-body = body.difference(solid(bar, -2, 2.2))
-
-# ---------------- Circle-F logo engraved on the sole bar ----------------
-# mirrored in x so it reads correctly when the sole is viewed from below
+body = body.difference(slab(rr(0, 0.5*D, 22, (by-fy)+10, 5), -5, 2.0))   # sole bar channel
 def circle_f(cx, cy):
-    ring = circ(cx, cy, 8.6).difference(circ(cx, cy, 6.9))
-    stem = sg.box(cx-2.8, cy-4.6, cx-1.0, cy+4.6)
-    top  = sg.box(cx-2.8, cy-4.6, cx+3.2, cy-2.8)
-    mid  = sg.box(cx-2.8, cy-0.9, cx+1.8, cy+0.9)
-    f = unary_union([ring, stem, top, mid])
-    return sa.scale(f, xfact=-1, origin=(cx, cy))
-# engrave 1.4 mm deeper than the 2.2 mm bar floor so it stands out (paint-fill it red)
-body = body.difference(solid(circle_f(0, 0.5*D), -2, 3.6))
+    ring = circ(cx, cy, 8.4).difference(circ(cx, cy, 6.7))
+    stem = sg.box(cx-2.7, cy-4.4, cx-1.0, cy+4.4)
+    top  = sg.box(cx-2.7, cy-4.4, cx+3.0, cy-2.7)
+    mid  = sg.box(cx-2.7, cy-0.8, cx+1.7, cy+0.8)
+    return sa.scale(unary_union([ring, stem, top, mid]), xfact=-1, origin=(cx, cy))
+body = body.difference(slab(circle_f(0, 0.5*D), -5, 3.4))
 
-# ---------------- CROWN: clean, single sight line ----------------
-body = body.difference(solid(sg.box(-0.8, FACE_Y+2, 0.8, 0.34*D), H-2.0, H+2))
+# ---------------- NECK + shaft bore (flowing neck off the front-heel) ----------------
+ndir = np.array([np.sin(np.radians(90-LIE_DEG)), 0, np.cos(np.radians(90-LIE_DEG))])  # leans to heel(+x)
+nbase = np.array([38.0, 13.0, 16.0])                 # inside the head at the front-heel
+ntop  = nbase + ndir*40.0
+neck = cylinder(radius=6.2, segment=(nbase, ntop), sections=ARC)
+cap  = trimesh.creation.icosphere(subdivisions=2, radius=6.2); cap.apply_translation(ntop)
+# a small fillet boss where the neck meets the crown
+boss = trimesh.creation.icosphere(subdivisions=2, radius=9.0); boss.apply_translation(nbase + ndir*4)
+body = tb.union([body, neck, cap, boss])
+# bore for the shaft
+b0 = ntop + ndir*3.0; b1 = nbase - ndir*8.0
+body = body.difference(cylinder(radius=SHAFT_DIA/2, segment=(b0, b1), sections=ARC))
 
-# ---------------- shaft bore (single bend, ~lie) ----------------
-horiz = (H + 10) / np.tan(np.radians(LIE_DEG))
-hy = 0.43*D
-p0 = np.array([ horiz/2 + 5, hy, H + 10])
-p1 = np.array([-horiz/2 + 5, hy, 6.0])
-body = body.difference(cylinder(radius=SHAFT_DIA/2, segment=(p0, p1), sections=ARC))
-
-# ---------------- rear sole weight pockets (MOI + reach tour weight) ----------------
+# ---------------- rear weight pockets ----------------
 for sx in (-1, 1):
-    pk = cylinder(radius=6.0, height=22.0, sections=ARC)
-    pk.apply_translation((sx*38.0, 0.82*D, 10.0))
+    pk = cylinder(radius=5.5, height=12, sections=ARC); pk.apply_translation((sx*40, 94, 6))
     body = body.difference(pk)
 
 # ---------------- finalise ----------------
 body.merge_vertices(); body.fix_normals()
 bb = body.bounds
 print("watertight:", body.is_watertight, "| winding:", body.is_winding_consistent)
-print("bbox W=%.1f D=%.1f H=%.1f mm"%(bb[1][0]-bb[0][0], bb[1][1]-bb[0][1], bb[1][2]-bb[0][2]))
+print("bbox W=%.1f D=%.1f H=%.1f"%(bb[1][0]-bb[0][0], bb[1][1]-bb[0][1], bb[1][2]-bb[0][2]))
 v = body.volume/1000
-print("vol %.0f cm3 | PLA 100%%: %.0f g | 30%%: %.0f g"%(v, v*1.24, v*1.24*0.30))
-for out in ("Putter_PhantomStyle_9_CircleF.stl", "Putter_PhantomStyle_9_CircleF.3mf"):
-    body.export(out); print("exported", out)
+print("vol %.0f cm3 | PLA100%% %.0f g | 30%% %.0f g"%(v, v*1.24, v*1.24*0.30))
+for o in ("Putter_PhantomStyle_9_CircleF.stl", "Putter_PhantomStyle_9_CircleF.3mf"):
+    body.export(o); print("exported", o)
